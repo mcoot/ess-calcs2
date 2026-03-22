@@ -45,8 +45,8 @@ describe("ForexService integration (real CSV)", () => {
     );
   });
 
-  it("date range starts at 2023-01-03", () => {
+  it("date range starts at 2018-01-02", () => {
     const range = service.getDateRange();
-    expect(range.earliest).toEqual(d(2023, 1, 3));
+    expect(range.earliest).toEqual(d(2018, 1, 2));
   });
 });

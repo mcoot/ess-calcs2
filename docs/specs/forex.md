@@ -8,7 +8,7 @@ Provide USD-to-AUD currency conversion using official RBA exchange rates, with d
 
 ### RBA CSV Format
 
-The bundled file `public/data/rba-forex.csv` is the RBA's F11.1 Exchange Rates table.
+The bundled file `data/public/rba-forex.csv` is the RBA's F11.1 Exchange Rates table.
 
 **Header structure (rows 1-11)**:
 
@@ -163,7 +163,7 @@ The bundled CSV should be updated periodically (e.g., monthly) by downloading th
 
 ```
 App startup
-  → Fetch /data/rba-forex.csv
+  → Fetch /data/public/rba-forex.csv
   → Parse header (skip 11 rows)
   → Parse data rows into ForexRate[]
   → Sort by date ascending

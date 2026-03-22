@@ -42,7 +42,7 @@ App Startup → Load IndexedDB → In-Memory Model → Services → UI
 
 ### Static Assets
 
-- RBA forex CSV bundled in `public/data/rba-forex.csv`
+- RBA forex CSV bundled in `data/public/rba-forex.csv`
 - Loaded at startup and parsed into the forex service
 
 ## Data Model

@@ -16,49 +16,105 @@ export function aud(value: number): AUD {
 // Domain interfaces
 
 export interface Award {
-  grantDate: string;       // ISO date string
-  vestingDate: string;     // ISO date string
-  symbol: string;
+  grantDate: Date;
+  grantNumber: number;
+  grantType: string;
+  grantName: string;
+  grantReason: string;
+  conversionPrice: USD;
   sharesGranted: number;
-  sharesForfeit: number;
-  sharesVested: number;
-  grantPriceUsd: USD;
-  vestingPriceUsd: USD;
 }
 
 export interface VestingScheduleEntry {
-  vestingDate: string;     // ISO date string
-  sharesVesting: number;
-  grantDate: string;
-  symbol: string;
+  grantNumber: number;
+  vestDate: Date;
+  shares: number;
 }
 
 export interface RsuRelease {
-  releaseDate: string;     // ISO date string
-  symbol: string;
-  sharesReleased: number;
-  sharesWithheld: number;
-  netShares: number;
-  releasePriceUsd: USD;
-  totalValueUsd: USD;
+  grantDate: Date;
+  grantNumber: number;
+  grantName: string;
+  grantReason: string;
+  releaseDate: Date;
+  sharesVested: number;
+  sharesSoldToCover: number;
+  sharesHeld: number;
+  valueUsd: USD;
+  fmvPerShare: USD;
+  saleDateSellToCover?: Date;
+  salePricePerShare?: USD;
+  saleProceeds?: USD;
+  sellToCoverAmount: USD;
+  releaseReferenceNumber: string;
 }
 
 export interface SaleLot {
-  saleDate: string;        // ISO date string
-  symbol: string;
+  withdrawalReferenceNumber: string;
+  originatingReleaseRef: string;
+  grantNumber: number;
+  grantName: string;
+  lotNumber: number;
+  saleType: string;
+  saleDate: Date;
+  originalAcquisitionDate: Date;
+  soldWithin30Days: boolean;
+  costBasisPerShare: USD;
+  costBasis: USD;
   sharesSold: number;
-  salePriceUsd: USD;
-  acquisitionDate: string;
-  acquisitionPriceUsd: USD;
-  proceedsUsd: USD;
+  saleProceeds: USD;
+  salePricePerShare: USD;
+  brokerageCommission: USD;
+  supplementalTransactionFee: USD;
 }
 
 export interface ForexRate {
-  date: string;            // ISO date string
-  audPerUsd: number;
+  date: Date;
+  audToUsd: number;
 }
 
+export type DataType = 'awards' | 'vestingSchedule' | 'releases' | 'saleLots' | 'forexRates';
+
 export interface AppConfig {
-  financialYear: number;   // e.g. 2024 = FY2023-24
-  marginalTaxRate: number; // 0–1
+  displayCurrency: 'USD' | 'AUD';
+  lastImportDate?: string;
+  importedFileTypes?: DataType[];
+}
+
+export interface DataStore {
+  getAwards(): Award[];
+  setAwards(awards: Award[]): Promise<void>;
+
+  getVestingSchedule(): VestingScheduleEntry[];
+  setVestingSchedule(entries: VestingScheduleEntry[]): Promise<void>;
+
+  getReleases(): RsuRelease[];
+  setReleases(releases: RsuRelease[]): Promise<void>;
+
+  getSaleLots(): SaleLot[];
+  setSaleLots(lots: SaleLot[]): Promise<void>;
+
+  getForexRates(): ForexRate[];
+  setForexRates(rates: ForexRate[]): Promise<void>;
+
+  getConfig<K extends keyof AppConfig>(key: K): AppConfig[K] | undefined;
+  setConfig<K extends keyof AppConfig>(key: K, value: AppConfig[K]): Promise<void>;
+
+  clearAll(): Promise<void>;
+  clearByType(type: DataType): Promise<void>;
+  exportAll(): Promise<DataExport>;
+  importAll(data: DataExport): Promise<void>;
+
+  initialize(): Promise<void>;
+  isInitialized(): boolean;
+}
+
+export interface DataExport {
+  version: 1;
+  exportedAt: string;
+  awards: Award[];
+  vestingSchedule: VestingScheduleEntry[];
+  releases: RsuRelease[];
+  saleLots: SaleLot[];
+  config: Partial<AppConfig>;
 }

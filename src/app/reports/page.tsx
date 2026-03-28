@@ -9,8 +9,10 @@ import { FySelector } from "@/components/dashboard/fy-selector";
 import { EssIncomeSection } from "@/components/reports/ess-income-section";
 import { CgtSection } from "@/components/reports/cgt-section";
 import { ThirtyDaySection } from "@/components/reports/thirty-day-section";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { RsuRelease, SaleLot } from "@/types";
+import { AppError } from "@/lib/errors";
 
 function downloadCsv(content: string, filename: string) {
   const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
@@ -57,9 +59,21 @@ export default function ReportsPage() {
     }
   }, [availableFys, selectedFy]);
 
+  const [reportError, setReportError] = useState<string | null>(null);
+
   const report: FyTaxReport | null = useMemo(() => {
+    setReportError(null);
     if (!selectedFy) return null;
-    return reportService.generateFyReport(selectedFy, releases, saleLots, essIncome, cgt);
+    try {
+      return reportService.generateFyReport(selectedFy, releases, saleLots, essIncome, cgt);
+    } catch (err) {
+      if (err instanceof AppError && err.code === "MISSING_RATE") {
+        setReportError(err.message);
+      } else {
+        setReportError(err instanceof Error ? err.message : "An unexpected error occurred");
+      }
+      return null;
+    }
   }, [reportService, selectedFy, releases, saleLots, essIncome, cgt]);
 
   function handleExportEss() {
@@ -120,6 +134,13 @@ export default function ReportsPage() {
           onSelect={setSelectedFy}
         />
       </div>
+
+      {reportError && (
+        <Alert variant="destructive">
+          <AlertTitle>Report generation error</AlertTitle>
+          <AlertDescription>{reportError}</AlertDescription>
+        </Alert>
+      )}
 
       {report && (
         <div className="space-y-6">

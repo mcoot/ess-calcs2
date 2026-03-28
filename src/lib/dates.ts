@@ -56,3 +56,10 @@ export function getFinancialYear(date: Date): number {
 export function isInFinancialYear(date: Date, fy: number): boolean {
   return getFinancialYear(date) === fy;
 }
+
+export function toFyString(date: Date): string {
+  const fy = getFinancialYear(date);
+  const startYear = fy - 1;
+  const endYY = String(fy).slice(2);
+  return `${startYear}-${endYY}`;
+}

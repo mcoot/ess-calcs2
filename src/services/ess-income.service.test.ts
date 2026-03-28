@@ -77,6 +77,17 @@ const TEST_RATES: ForexRate[] = [
 
   // Cases 9-11
   { date: d(2025, 5, 13), audToUsd: 0.6450 },
+
+  // 30-day rule test rates
+  { date: d(2024, 3, 4), audToUsd: 0.5000 },   // vest date (Monday)
+  { date: d(2024, 3, 11), audToUsd: 0.6250 },  // sale date case 1
+  { date: d(2024, 3, 8), audToUsd: 0.7000 },   // sale date case 2
+  { date: d(2024, 4, 1), audToUsd: 0.8000 },   // multi-lot vest date
+  { date: d(2024, 4, 3), audToUsd: 0.6400 },   // multi-lot sale 1
+  { date: d(2024, 4, 5), audToUsd: 0.5000 },   // multi-lot sale 2
+  { date: d(2024, 4, 8), audToUsd: 0.6000 },   // multi-lot sale 3
+  { date: d(2024, 7, 3), audToUsd: 0.6620 },   // cross-FY sale date
+  { date: d(2023, 2, 24), audToUsd: 0.6800 },  // spec test case 2 sale date
 ];
 
 describe("EssIncomeService — standard case (no 30-day rule)", () => {
@@ -327,5 +338,448 @@ describe("EssIncomeService — standard case (no 30-day rule)", () => {
     expect(result.releaseDate).toEqual(d(2023, 2, 13));
     expect(result.grantNumber).toBe(9375);
     expect(result.releaseRef).toBe("REL-AUDIT");
+  });
+});
+
+describe("EssIncomeService — 30-day rule", () => {
+  const forex = createForexService(TEST_RATES);
+  const service = createEssIncomeService(forex);
+
+  it("Case 1: mixed release — some shares 30-day, remainder standard", () => {
+    // 20 shares, $100 FMV, vest 4-Mar-2024 (rate 0.5000)
+    // 8 shares sold within 30 days on 11-Mar-2024 (rate 0.6250), proceeds $900
+    const release = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 20,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-MIX",
+    });
+
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-MIX",
+      saleDate: d(2024, 3, 11),
+      originalAcquisitionDate: d(2024, 3, 4),
+      soldWithin30Days: true,
+      sharesSold: 8,
+      saleProceeds: usd(900),
+      withdrawalReferenceNumber: "WRC-MIX-1",
+    });
+
+    const [result] = service.calculateByRelease([release], [lot]);
+
+    // Standard: 20 - 8 = 12 shares, USD = 12 × 100 = 1200, AUD = 1200 / 0.5 = 2400.00
+    expect(result.standardShares).toBe(12);
+    expect(result.standardIncomeUsd).toBeCloseTo(1200, 2);
+    expect(result.standardIncomeAud).toBeCloseTo(2400.00, 2);
+
+    // 30-day: 1 lot, proceeds $900, AUD = 900 / 0.625 = 1440.00
+    expect(result.thirtyDayLots).toHaveLength(1);
+    expect(result.thirtyDayLots[0].sharesSold).toBe(8);
+    expect(result.thirtyDayLots[0].saleProceedsUsd).toBeCloseTo(900, 2);
+    expect(result.thirtyDayLots[0].essIncomeAud).toBeCloseTo(1440.00, 2);
+
+    // Total = 2400 + 1440 = 3840.00
+    expect(result.totalEssIncomeAud).toBeCloseTo(3840.00, 2);
+  });
+
+  it("Case 2: all shares sold within 30 days — zero standard shares", () => {
+    // 10 shares, $200 FMV, vest 4-Mar-2024 (rate 0.5000)
+    // All 10 sold within 30 days on 8-Mar-2024 (rate 0.7000), proceeds $2100
+    const release = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 10,
+      fmvPerShare: usd(200),
+      releaseReferenceNumber: "REL-ALL30",
+    });
+
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-ALL30",
+      saleDate: d(2024, 3, 8),
+      originalAcquisitionDate: d(2024, 3, 4),
+      soldWithin30Days: true,
+      sharesSold: 10,
+      saleProceeds: usd(2100),
+      withdrawalReferenceNumber: "WRC-ALL30",
+    });
+
+    const [result] = service.calculateByRelease([release], [lot]);
+
+    expect(result.standardShares).toBe(0);
+    expect(result.standardIncomeUsd).toBeCloseTo(0, 2);
+    expect(result.standardIncomeAud).toBeCloseTo(0, 2);
+
+    // 30-day: proceeds $2100, AUD = 2100 / 0.7 = 3000.00
+    expect(result.thirtyDayLots).toHaveLength(1);
+    expect(result.thirtyDayLots[0].essIncomeAud).toBeCloseTo(3000.00, 2);
+    expect(result.totalEssIncomeAud).toBeCloseTo(3000.00, 2);
+  });
+
+  it("Case 3: multiple 30-day lots from one release, each with own forex rate", () => {
+    // 20 shares, $200 FMV, vest 1-Apr-2024 (rate 0.8000)
+    // 3 lots sold within 30 days totalling 20 shares
+    const release = makeRelease({
+      releaseDate: d(2024, 4, 1),
+      sharesVested: 20,
+      fmvPerShare: usd(200),
+      releaseReferenceNumber: "REL-MULTI",
+    });
+
+    const lot1 = makeSaleLot({
+      originatingReleaseRef: "REL-MULTI",
+      saleDate: d(2024, 4, 3),    // rate 0.6400
+      originalAcquisitionDate: d(2024, 4, 1),
+      soldWithin30Days: true,
+      sharesSold: 8,
+      saleProceeds: usd(1600),
+      withdrawalReferenceNumber: "WRC-M1",
+      lotNumber: 1,
+    });
+    const lot2 = makeSaleLot({
+      originatingReleaseRef: "REL-MULTI",
+      saleDate: d(2024, 4, 5),    // rate 0.5000
+      originalAcquisitionDate: d(2024, 4, 1),
+      soldWithin30Days: true,
+      sharesSold: 5,
+      saleProceeds: usd(1000),
+      withdrawalReferenceNumber: "WRC-M2",
+      lotNumber: 2,
+    });
+    const lot3 = makeSaleLot({
+      originatingReleaseRef: "REL-MULTI",
+      saleDate: d(2024, 4, 8),    // rate 0.6000
+      originalAcquisitionDate: d(2024, 4, 1),
+      soldWithin30Days: true,
+      sharesSold: 7,
+      saleProceeds: usd(1400),
+      withdrawalReferenceNumber: "WRC-M3",
+      lotNumber: 3,
+    });
+
+    const [result] = service.calculateByRelease([release], [lot1, lot2, lot3]);
+
+    expect(result.standardShares).toBe(0);
+    expect(result.thirtyDayLots).toHaveLength(3);
+
+    // Lot 1: 1600 / 0.64 = 2500.00
+    const l1 = result.thirtyDayLots.find((l) => l.saleLotRef === "WRC-M1")!;
+    expect(l1.essIncomeAud).toBeCloseTo(2500.00, 2);
+    expect(l1.forexRate).toBe(0.6400);
+
+    // Lot 2: 1000 / 0.50 = 2000.00
+    const l2 = result.thirtyDayLots.find((l) => l.saleLotRef === "WRC-M2")!;
+    expect(l2.essIncomeAud).toBeCloseTo(2000.00, 2);
+    expect(l2.forexRate).toBe(0.5000);
+
+    // Lot 3: 1400 / 0.60 = 2333.33
+    const l3 = result.thirtyDayLots.find((l) => l.saleLotRef === "WRC-M3")!;
+    expect(l3.essIncomeAud).toBeCloseTo(2333.33, 2);
+    expect(l3.forexRate).toBe(0.6000);
+
+    // Total: 2500 + 2000 + 2333.33 = 6833.33
+    expect(result.totalEssIncomeAud).toBeCloseTo(6833.33, 2);
+  });
+
+  it("Case 4: 30-day lot forex uses sale date, not vest date", () => {
+    // Vest 4-Mar-2024 (rate 0.5000), sale 11-Mar-2024 (rate 0.6250)
+    const release = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 10,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-FXDATE",
+    });
+
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-FXDATE",
+      saleDate: d(2024, 3, 11),
+      originalAcquisitionDate: d(2024, 3, 4),
+      soldWithin30Days: true,
+      sharesSold: 10,
+      saleProceeds: usd(1000),
+      withdrawalReferenceNumber: "WRC-FXDATE",
+    });
+
+    const [result] = service.calculateByRelease([release], [lot]);
+
+    // The lot must use sale date rate (0.6250), NOT vest date rate (0.5000)
+    expect(result.thirtyDayLots[0].forexRate).toBe(0.6250);
+    expect(result.thirtyDayLots[0].forexDate).toEqual(d(2024, 3, 11));
+    // AUD = 1000 / 0.625 = 1600, NOT 1000 / 0.5 = 2000
+    expect(result.thirtyDayLots[0].essIncomeAud).toBeCloseTo(1600.00, 2);
+  });
+
+  it("Case 5: 30-day lot crossing FY boundary — lot uses sale date FY", () => {
+    // Vest 28-Jun-2024 (FY 2023-24, rate 0.6600)
+    // Sale 3-Jul-2024 (FY 2024-25, rate 0.6620), within 30 days
+    const release = makeRelease({
+      releaseDate: d(2024, 6, 28),
+      sharesVested: 10,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-CROSSFY",
+    });
+
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-CROSSFY",
+      saleDate: d(2024, 7, 3),
+      originalAcquisitionDate: d(2024, 6, 28),
+      soldWithin30Days: true,
+      sharesSold: 10,
+      saleProceeds: usd(1050),
+      withdrawalReferenceNumber: "WRC-CROSSFY",
+    });
+
+    const [result] = service.calculateByRelease([release], [lot]);
+
+    // Release FY is based on vest date: 28-Jun → 2023-24
+    expect(result.financialYear).toBe("2023-24");
+    // 30-day lot FY is based on sale date: 3-Jul → 2024-25
+    expect(result.thirtyDayLots[0].financialYear).toBe("2024-25");
+  });
+
+  it("Case 6: 30-day lot audit trail fields fully populated", () => {
+    const release = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 15,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-AUDIT30",
+    });
+
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-AUDIT30",
+      saleDate: d(2024, 3, 11),
+      originalAcquisitionDate: d(2024, 3, 4),
+      soldWithin30Days: true,
+      sharesSold: 5,
+      saleProceeds: usd(600),
+      withdrawalReferenceNumber: "WRC-AUDIT30",
+    });
+
+    const [result] = service.calculateByRelease([release], [lot]);
+    const lotResult = result.thirtyDayLots[0];
+
+    expect(lotResult.saleLotRef).toBe("WRC-AUDIT30");
+    expect(lotResult.saleDate).toEqual(d(2024, 3, 11));
+    expect(lotResult.sharesSold).toBe(5);
+    expect(lotResult.saleProceedsUsd).toBeCloseTo(600, 2);
+    expect(lotResult.forexRate).toBe(0.6250);
+    expect(lotResult.forexDate).toEqual(d(2024, 3, 11));
+    // 600 / 0.625 = 960.00
+    expect(lotResult.essIncomeAud).toBeCloseTo(960.00, 2);
+    expect(lotResult.financialYear).toBe("2023-24");
+  });
+
+  it("Case 7: sale lots from other releases are not matched", () => {
+    const release1 = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 10,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-ONE",
+    });
+    const release2 = makeRelease({
+      releaseDate: d(2024, 3, 4),
+      sharesVested: 10,
+      fmvPerShare: usd(100),
+      releaseReferenceNumber: "REL-TWO",
+    });
+
+    // This lot references REL-ONE only
+    const lot = makeSaleLot({
+      originatingReleaseRef: "REL-ONE",
+      saleDate: d(2024, 3, 11),
+      originalAcquisitionDate: d(2024, 3, 4),
+      soldWithin30Days: true,
+      sharesSold: 5,
+      saleProceeds: usd(600),
+      withdrawalReferenceNumber: "WRC-MATCH",
+    });
+
+    const results = service.calculateByRelease([release1, release2], [lot]);
+
+    const r1 = results.find((r) => r.releaseRef === "REL-ONE")!;
+    const r2 = results.find((r) => r.releaseRef === "REL-TWO")!;
+
+    expect(r1.thirtyDayLots).toHaveLength(1);
+    expect(r1.standardShares).toBe(5);
+
+    expect(r2.thirtyDayLots).toHaveLength(0);
+    expect(r2.standardShares).toBe(10);
+  });
+});
+
+// ── aggregateByFy tests ─────────────────────────────────────────────
+
+function makeReleaseIncome(overrides: Partial<ReleaseEssIncome> & Pick<ReleaseEssIncome, "releaseRef" | "financialYear" | "standardIncomeAud" | "totalEssIncomeAud">): ReleaseEssIncome {
+  return {
+    releaseRef: overrides.releaseRef,
+    grantNumber: overrides.grantNumber ?? 9375,
+    releaseDate: overrides.releaseDate ?? d(2024, 1, 1),
+    sharesVested: overrides.sharesVested ?? 10,
+    fmvPerShare: overrides.fmvPerShare ?? usd(100),
+    standardShares: overrides.standardShares ?? 10,
+    standardIncomeUsd: overrides.standardIncomeUsd ?? usd(1000),
+    standardIncomeAud: overrides.standardIncomeAud,
+    standardForexRate: overrides.standardForexRate ?? 0.65,
+    standardForexDate: overrides.standardForexDate ?? d(2024, 1, 1),
+    thirtyDayLots: overrides.thirtyDayLots ?? [],
+    totalEssIncomeAud: overrides.totalEssIncomeAud,
+    financialYear: overrides.financialYear,
+  };
+}
+
+import { aud } from "@/types";
+
+describe("EssIncomeService — aggregateByFy", () => {
+  const forex = createForexService(TEST_RATES);
+  const service = createEssIncomeService(forex);
+
+  it("Case 1: single FY, all standard — groups and sums correctly", () => {
+    const releases = [
+      makeReleaseIncome({
+        releaseRef: "R1",
+        financialYear: "2023-24",
+        standardIncomeAud: aud(1000),
+        totalEssIncomeAud: aud(1000),
+      }),
+      makeReleaseIncome({
+        releaseRef: "R2",
+        financialYear: "2023-24",
+        standardIncomeAud: aud(2000),
+        totalEssIncomeAud: aud(2000),
+      }),
+      makeReleaseIncome({
+        releaseRef: "R3",
+        financialYear: "2023-24",
+        standardIncomeAud: aud(500),
+        totalEssIncomeAud: aud(500),
+      }),
+    ];
+
+    const result = service.aggregateByFy(releases);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].financialYear).toBe("2023-24");
+    expect(result[0].releases).toHaveLength(3);
+    expect(result[0].totalEssIncomeAud).toBeCloseTo(3500, 2);
+  });
+
+  it("Case 2: multiple FYs — releases split into separate buckets", () => {
+    const releases = [
+      makeReleaseIncome({
+        releaseRef: "R-OLD",
+        financialYear: "2022-23",
+        standardIncomeAud: aud(800),
+        totalEssIncomeAud: aud(800),
+      }),
+      makeReleaseIncome({
+        releaseRef: "R-NEW",
+        financialYear: "2024-25",
+        standardIncomeAud: aud(1200),
+        totalEssIncomeAud: aud(1200),
+      }),
+    ];
+
+    const result = service.aggregateByFy(releases);
+
+    expect(result).toHaveLength(2);
+
+    const fy2223 = result.find((r) => r.financialYear === "2022-23")!;
+    expect(fy2223.releases).toHaveLength(1);
+    expect(fy2223.totalEssIncomeAud).toBeCloseTo(800, 2);
+
+    const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
+    expect(fy2425.releases).toHaveLength(1);
+    expect(fy2425.totalEssIncomeAud).toBeCloseTo(1200, 2);
+  });
+
+  it("Case 3: cross-FY 30-day lot — income attributed to correct FYs", () => {
+    // Release vests in FY 2023-24, standard portion = 600 AUD
+    // 30-day lot sold in FY 2024-25, lot income = 900 AUD
+    // Release's totalEssIncomeAud = 1500, but that should be split across FYs
+    const release = makeReleaseIncome({
+      releaseRef: "R-CROSS",
+      financialYear: "2023-24",
+      standardIncomeAud: aud(600),
+      totalEssIncomeAud: aud(1500),
+      standardShares: 4,
+      sharesVested: 10,
+      thirtyDayLots: [
+        {
+          saleLotRef: "WRC-CROSS",
+          saleDate: d(2024, 7, 3),
+          sharesSold: 6,
+          saleProceedsUsd: usd(900),
+          essIncomeAud: aud(900),
+          forexRate: 0.6620,
+          forexDate: d(2024, 7, 3),
+          financialYear: "2024-25",
+        },
+      ],
+    });
+
+    const result = service.aggregateByFy([release]);
+
+    expect(result).toHaveLength(2);
+
+    // FY 2023-24 should only contain the standard portion
+    const fy2324 = result.find((r) => r.financialYear === "2023-24")!;
+    expect(fy2324.totalEssIncomeAud).toBeCloseTo(600, 2);
+
+    // FY 2024-25 should contain the 30-day lot income
+    const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
+    expect(fy2425.totalEssIncomeAud).toBeCloseTo(900, 2);
+  });
+
+  it("Case 4: empty input — returns empty array", () => {
+    const result = service.aggregateByFy([]);
+    expect(result).toEqual([]);
+  });
+
+  it("Case 5: mixed FY with standard releases and cross-FY lots", () => {
+    // Release A: entirely in FY 2023-24, standard only, 1000 AUD
+    const releaseA = makeReleaseIncome({
+      releaseRef: "R-A",
+      financialYear: "2023-24",
+      standardIncomeAud: aud(1000),
+      totalEssIncomeAud: aud(1000),
+    });
+
+    // Release B: vest in FY 2023-24 (standard 400), 30-day lot in FY 2024-25 (500)
+    const releaseB = makeReleaseIncome({
+      releaseRef: "R-B",
+      financialYear: "2023-24",
+      standardIncomeAud: aud(400),
+      totalEssIncomeAud: aud(900),
+      thirtyDayLots: [
+        {
+          saleLotRef: "WRC-B",
+          saleDate: d(2024, 7, 10),
+          sharesSold: 5,
+          saleProceedsUsd: usd(500),
+          essIncomeAud: aud(500),
+          forexRate: 0.65,
+          forexDate: d(2024, 7, 10),
+          financialYear: "2024-25",
+        },
+      ],
+    });
+
+    // Release C: entirely in FY 2024-25, standard only, 2000 AUD
+    const releaseC = makeReleaseIncome({
+      releaseRef: "R-C",
+      financialYear: "2024-25",
+      standardIncomeAud: aud(2000),
+      totalEssIncomeAud: aud(2000),
+    });
+
+    const result = service.aggregateByFy([releaseA, releaseB, releaseC]);
+
+    expect(result).toHaveLength(2);
+
+    // FY 2023-24: A's 1000 + B's standard 400 = 1400
+    const fy2324 = result.find((r) => r.financialYear === "2023-24")!;
+    expect(fy2324.totalEssIncomeAud).toBeCloseTo(1400, 2);
+
+    // FY 2024-25: C's 2000 + B's 30-day lot 500 = 2500
+    const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
+    expect(fy2425.totalEssIncomeAud).toBeCloseTo(2500, 2);
   });
 });

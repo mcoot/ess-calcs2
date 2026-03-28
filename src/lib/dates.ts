@@ -57,6 +57,12 @@ export function isInFinancialYear(date: Date, fy: number): boolean {
   return getFinancialYear(date) === fy;
 }
 
+const MILLIS_PER_DAY = 86_400_000;
+
+export function daysBetween(from: Date, to: Date): number {
+  return Math.round((to.getTime() - from.getTime()) / MILLIS_PER_DAY);
+}
+
 export function toFyString(date: Date): string {
   const fy = getFinancialYear(date);
   const startYear = fy - 1;

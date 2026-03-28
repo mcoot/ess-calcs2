@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAppContext } from "@/components/providers/app-provider";
 import { createReportService } from "@/services/report.service";
 import type { FyTaxReport } from "@/services/report.service";
@@ -62,27 +62,23 @@ export default function ReportsPage() {
     return reportService.generateFyReport(selectedFy, releases, saleLots, essIncome, cgt);
   }, [reportService, selectedFy, releases, saleLots, essIncome, cgt]);
 
-  const handleExportEss = useCallback(() => {
+  function handleExportEss() {
     if (!report) return;
     const csv = csvExport.exportEssIncomeCsv(report.essIncomeRows, report.financialYear);
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-ess-income.csv`);
-  }, [report, csvExport]);
+  }
 
-  const handleExportCgt = useCallback(() => {
+  function handleExportCgt() {
     if (!report) return;
     const csv = csvExport.exportCgtCsv(report.cgtRows, report.financialYear);
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-cgt.csv`);
-  }, [report, csvExport]);
+  }
 
-  const handleExport30Day = useCallback(() => {
+  function handleExport30Day() {
     if (!report) return;
     const csv = csvExport.exportThirtyDayCsv(report.thirtyDaySummaryRows, report.financialYear);
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-30day.csv`);
-  }, [report, csvExport]);
-
-  const handlePrint = useCallback(() => {
-    window.print();
-  }, []);
+  }
 
   if (loaded && availableFys.length === 0) {
     return (
@@ -111,7 +107,7 @@ export default function ReportsPage() {
               Export 30-Day CSV
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
             Print
           </Button>
         </div>

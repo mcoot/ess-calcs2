@@ -2,10 +2,11 @@ import type { CgtReportRow } from "@/services/report.service";
 import type { FyCgtSummary } from "@/services/cgt.service";
 import { formatCurrency } from "@/lib/money";
 import { formatDate } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table, TableBody, TableCell, TableFooter, TableHead,
+  Table, TableBody, TableCell, TableHead,
   TableHeader, TableRow,
 } from "@/components/ui/table";
 
@@ -17,7 +18,7 @@ interface CgtSectionProps {
 
 function WalkthroughLine({ label, amount, indent }: { label: string; amount: number; indent?: boolean }) {
   return (
-    <div className={`flex justify-between ${indent ? "pl-4" : ""}`}>
+    <div className={cn("flex justify-between", indent && "pl-4")}>
       <span>{label}</span>
       <span className="font-mono">{formatCurrency(amount, "AUD")}</span>
     </div>

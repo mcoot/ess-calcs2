@@ -1,4 +1,5 @@
 import type { EssIncomeReportRow, CgtReportRow, ThirtyDaySummaryRow } from "./report.service";
+import { toDateKey } from "@/lib/dates";
 
 // ── Service interface ───────────────────────────────────────────────
 
@@ -11,13 +12,6 @@ export interface CsvExportService {
 // ── Helpers ─────────────────────────────────────────────────────────
 
 const BOM = "\uFEFF";
-
-function formatDate(date: Date): string {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 function money(n: number): string {
   return n.toFixed(2);
@@ -54,7 +48,7 @@ export function createCsvExportService(): CsvExportService {
     ];
 
     const dataRows = rows.map((r) => [
-      formatDate(r.date),
+      toDateKey(r.date),
       String(r.grantNumber),
       r.grantName,
       r.releaseRef,
@@ -62,7 +56,7 @@ export function createCsvExportService(): CsvExportService {
       money(r.fmvPerShareUsd as number),
       money(r.grossValueUsd as number),
       rate(r.exchangeRate),
-      formatDate(r.rateDate),
+      toDateKey(r.rateDate),
       money(r.essIncomeAud as number),
       r.is30DayRule ? "Yes" : "No",
       r.notes,
@@ -81,8 +75,8 @@ export function createCsvExportService(): CsvExportService {
     ];
 
     const dataRows = rows.map((r) => [
-      formatDate(r.saleDate),
-      formatDate(r.acquisitionDate),
+      toDateKey(r.saleDate),
+      toDateKey(r.acquisitionDate),
       String(r.grantNumber),
       r.grantName,
       String(r.lotNumber),
@@ -92,11 +86,11 @@ export function createCsvExportService(): CsvExportService {
       money(r.costBasisUsd as number),
       money(r.costBasisAud as number),
       rate(r.costBasisRate),
-      formatDate(r.costBasisRateDate),
+      toDateKey(r.costBasisRateDate),
       money(r.netProceedsUsd as number),
       money(r.netProceedsAud as number),
       rate(r.proceedsRate),
-      formatDate(r.proceedsRateDate),
+      toDateKey(r.proceedsRateDate),
       money(r.capitalGainLossAud as number),
     ]);
 
@@ -110,8 +104,8 @@ export function createCsvExportService(): CsvExportService {
     ];
 
     const dataRows = rows.map((r) => [
-      formatDate(r.saleDate),
-      formatDate(r.vestDate),
+      toDateKey(r.saleDate),
+      toDateKey(r.vestDate),
       String(r.daysHeld),
       String(r.grantNumber),
       r.grantName,

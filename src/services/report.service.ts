@@ -2,7 +2,7 @@ import type { RsuRelease, SaleLot, AUD, USD } from "@/types";
 import { aud } from "@/types";
 import type { EssIncomeService, ReleaseEssIncome } from "./ess-income.service";
 import type { CgtService, FyCgtSummary, SaleLotCgt } from "./cgt.service";
-import { toFyString } from "@/lib/dates";
+import { toFyString, daysBetween } from "@/lib/dates";
 import { roundTo2dp } from "@/lib/money";
 
 // ── Report row types ────────────────────────────────────────────────
@@ -81,31 +81,26 @@ export interface ReportService {
 
 // ── Factory ─────────────────────────────────────────────────────────
 
-const MILLIS_PER_DAY = 86_400_000;
-
-function daysBetween(from: Date, to: Date): number {
-  return Math.round((to.getTime() - from.getTime()) / MILLIS_PER_DAY);
+function emptyCgtSummary(fy: string): FyCgtSummary {
+  return {
+    financialYear: fy,
+    lots: [],
+    shortTermGains: aud(0),
+    longTermGains: aud(0),
+    totalGains: aud(0),
+    shortTermLosses: aud(0),
+    longTermLosses: aud(0),
+    totalLosses: aud(0),
+    shortTermAfterLosses: aud(0),
+    longTermAfterLosses: aud(0),
+    discountAmount: aud(0),
+    discountedLongTerm: aud(0),
+    netCapitalGain: aud(0),
+    netCapitalLoss: aud(0),
+  };
 }
 
-const EMPTY_CGT_SUMMARY: FyCgtSummary = {
-  financialYear: "",
-  lots: [],
-  shortTermGains: aud(0),
-  longTermGains: aud(0),
-  totalGains: aud(0),
-  shortTermLosses: aud(0),
-  longTermLosses: aud(0),
-  totalLosses: aud(0),
-  shortTermAfterLosses: aud(0),
-  longTermAfterLosses: aud(0),
-  discountAmount: aud(0),
-  discountedLongTerm: aud(0),
-  netCapitalGain: aud(0),
-  netCapitalLoss: aud(0),
-};
-
 export function createReportService(): ReportService {
-  // Build a lookup from grant number → grant name using source releases
   function buildGrantNameLookup(releases: RsuRelease[], saleLots: SaleLot[]): Map<number, string> {
     const lookup = new Map<number, string>();
     for (const r of releases) {
@@ -128,7 +123,6 @@ export function createReportService(): ReportService {
     for (const ri of fyReleases) {
       const grantName = grantNames.get(ri.grantNumber) ?? "";
 
-      // Standard portion row
       if (ri.standardShares > 0) {
         rows.push({
           date: ri.releaseDate,
@@ -146,7 +140,6 @@ export function createReportService(): ReportService {
         });
       }
 
-      // 30-day lot rows
       for (const lot of ri.thirtyDayLots) {
         const daysHeld = daysBetween(ri.releaseDate, lot.saleDate);
         rows.push({
@@ -228,7 +221,6 @@ export function createReportService(): ReportService {
   ): FyTaxReport {
     const grantNames = buildGrantNameLookup(releases, saleLots);
 
-    // ESS income: calculate all, then filter to requested FY
     const allReleaseIncomes = essIncomeService.calculateByRelease(releases, saleLots);
     const fyEssIncomes = essIncomeService.aggregateByFy(allReleaseIncomes);
     const fyEss = fyEssIncomes.find((e) => e.financialYear === fy);
@@ -238,15 +230,13 @@ export function createReportService(): ReportService {
       ? aud(roundTo2dp(fyEss.totalEssIncomeAud as number))
       : aud(0);
 
-    // CGT: calculate all, then filter to requested FY
     const allLotCgts = cgtService.calculateByLot(saleLots);
     const fyCgtSummaries = cgtService.aggregateByFy(allLotCgts);
     const fyCgt = fyCgtSummaries.find((c) => c.financialYear === fy);
 
     const cgtRows = fyCgt ? buildCgtRows(fyCgt.lots, grantNames) : [];
-    const cgtSummary = fyCgt ?? { ...EMPTY_CGT_SUMMARY, financialYear: fy };
+    const cgtSummary = fyCgt ?? emptyCgtSummary(fy);
 
-    // 30-day summary
     const thirtyDaySummaryRows = fyEss
       ? buildThirtyDaySummary(fyEss.releases, grantNames)
       : [];

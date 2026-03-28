@@ -14,7 +14,7 @@ export function AppHeader() {
   return (
     <header className="flex items-center justify-between border-b px-6 py-3">
       <nav className="flex items-center gap-6">
-        <span className="text-lg font-semibold">ESS Calcs</span>
+        <Link href="/" className="text-lg font-semibold hover:text-foreground">ESS Calcs</Link>
         {NAV_LINKS.map(({ href, label }) => (
           <Link
             key={href}

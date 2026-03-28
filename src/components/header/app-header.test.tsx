@@ -33,6 +33,12 @@ describe("AppHeader", () => {
     expect(salesLink).toHaveAttribute("href", "/sales");
   });
 
+  it("renders title as a link to the dashboard", () => {
+    renderWithProvider(<AppHeader />);
+    const homeLink = screen.getByRole("link", { name: "ESS Calcs" });
+    expect(homeLink).toHaveAttribute("href", "/");
+  });
+
   it("renders the currency toggle", () => {
     renderWithProvider(<AppHeader />);
     expect(screen.getByRole("button", { name: "AUD" })).toBeDefined();

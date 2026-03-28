@@ -28,8 +28,8 @@ export default function SalesPage() {
     return [...fys].sort();
   }, [lots]);
 
-  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter(availableFys);
-  const filteredResults = filterByFy(cgtResults);
+  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter();
+  const filteredResults = useMemo(() => filterByFy(cgtResults), [filterByFy, cgtResults]);
   const filteredLots = useMemo(
     () =>
       selectedFy === "all"

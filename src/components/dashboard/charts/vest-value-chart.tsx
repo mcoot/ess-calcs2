@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useMemo } from "react";
 import type { VestValueBar } from "@/lib/chart-data";
 
 interface VestValueChartProps {
@@ -23,16 +24,18 @@ export function VestValueChart({ data, currency }: VestValueChartProps) {
     return <p className="py-8 text-center text-muted-foreground" data-testid="vest-value-empty">No vest data available.</p>;
   }
 
-  const grants = [...new Set(data.map((d) => d.grant))];
-  const grouped = data.reduce<Record<string, Record<string, number>>>((acc, d) => {
-    if (!acc[d.date]) acc[d.date] = {};
-    acc[d.date][d.grant] = d.value;
-    return acc;
-  }, {});
-
-  const chartData = Object.entries(grouped)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, values]) => ({ date, ...values }));
+  const { grants, chartData } = useMemo(() => {
+    const g = [...new Set(data.map((d) => d.grant))];
+    const grouped = data.reduce<Record<string, Record<string, number>>>((acc, d) => {
+      if (!acc[d.date]) acc[d.date] = {};
+      acc[d.date][d.grant] = d.value;
+      return acc;
+    }, {});
+    const cd = Object.entries(grouped)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, values]) => ({ date, ...values }));
+    return { grants: g, chartData: cd };
+  }, [data]);
 
   const prefix = currency === "AUD" ? "A$" : "$";
 

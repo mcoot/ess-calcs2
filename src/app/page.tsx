@@ -56,24 +56,24 @@ export default function DashboardPage() {
     load();
   }, [store, essIncome, cgt, refreshKey]);
 
+  const availableFinancialYears = useMemo(() => {
+    const fySet = new Set<string>();
+    for (const r of releaseIncomes) fySet.add(r.financialYear);
+    for (const c of fyCgtSummaries) fySet.add(c.financialYear);
+    return [...fySet].sort();
+  }, [releaseIncomes, fyCgtSummaries]);
+
+  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter();
+
   const summary = useMemo(
-    () => dashboard.summarize(awards, releaseIncomes, fyCgtSummaries, saleLots),
-    [dashboard, awards, releaseIncomes, fyCgtSummaries, saleLots],
-  );
-
-  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter(
-    summary.availableFinancialYears,
-  );
-
-  const filteredSummary = useMemo(
     () =>
       dashboard.summarize(awards, releaseIncomes, fyCgtSummaries, saleLots, selectedFy),
     [dashboard, awards, releaseIncomes, fyCgtSummaries, saleLots, selectedFy],
   );
 
-  const filteredReleases = filterByFy(releaseIncomes);
-  const filteredFyEss = filterByFy(fyEssIncomes);
-  const filteredFyCgt = filterByFy(fyCgtSummaries);
+  const filteredReleases = useMemo(() => filterByFy(releaseIncomes), [filterByFy, releaseIncomes]);
+  const filteredFyEss = useMemo(() => filterByFy(fyEssIncomes), [filterByFy, fyEssIncomes]);
+  const filteredFyCgt = useMemo(() => filterByFy(fyCgtSummaries), [filterByFy, fyCgtSummaries]);
 
   const hasData = awards.length > 0 || releaseIncomes.length > 0 || saleLots.length > 0;
 
@@ -91,12 +91,12 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       <FySelector
-        availableFys={summary.availableFinancialYears}
+        availableFys={availableFinancialYears}
         selectedFy={selectedFy}
         onSelect={setSelectedFy}
       />
 
-      <SummaryCards summary={filteredSummary} displayCurrency={displayCurrency} />
+      <SummaryCards summary={summary} displayCurrency={displayCurrency} />
 
       <div className="grid gap-6 md:grid-cols-2">
         <section>

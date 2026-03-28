@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-export function useFyFilter(_availableFys: string[]) {
+export function useFyFilter() {
   const [selectedFy, setSelectedFy] = useState("all");
 
   const filterByFy = useCallback(

@@ -7,7 +7,7 @@ import { FySelector } from "@/components/dashboard/fy-selector";
 import { useFyFilter } from "@/hooks/use-fy-filter";
 import type { RsuRelease, SaleLot } from "@/types";
 import type { ReleaseEssIncome } from "@/services/ess-income.service";
-import { toFyString } from "@/lib/dates";
+
 
 export default function ReleasesPage() {
   const { store, essIncome, refreshKey } = useAppContext();
@@ -31,7 +31,7 @@ export default function ReleasesPage() {
     return [...fys].sort();
   }, [incomes]);
 
-  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter(availableFys);
+  const { selectedFy, setSelectedFy, filterByFy } = useFyFilter();
   const filteredIncomes = filterByFy(incomes);
 
   return (

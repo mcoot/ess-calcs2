@@ -7,6 +7,10 @@ import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "@/components/ui/table";
 
+interface AwardsTableProps {
+  awards: Award[];
+}
+
 export function AwardsTable({ awards }: AwardsTableProps) {
   if (awards.length === 0) {
     return (

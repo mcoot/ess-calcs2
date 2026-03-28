@@ -1,10 +1,31 @@
 "use client";
 
+import { useState } from "react";
+import { useAppContext } from "@/components/providers/app-provider";
+import { FileDropZone } from "@/components/import/file-drop-zone";
+import { ImportResults } from "@/components/import/import-results";
+import { DataSummary } from "@/components/import/data-summary";
+import { importCsv, type ImportResult } from "@/services/csv-import.service";
+
 export default function ImportPage() {
+  const { store, refreshData } = useAppContext();
+  const [result, setResult] = useState<ImportResult | null>(null);
+
+  async function handleFiles(files: File[]) {
+    for (const file of files) {
+      const text = await file.text();
+      const r = await importCsv(store, text);
+      setResult(r);
+    }
+    refreshData();
+  }
+
   return (
-    <main className="p-8">
+    <main className="space-y-6 p-8">
       <h1 className="text-2xl font-bold">Import Data</h1>
-      <p className="mt-2 text-muted-foreground">CSV import placeholder</p>
+      <FileDropZone onFilesSelected={handleFiles} />
+      <ImportResults result={result} />
+      <DataSummary />
     </main>
   );
 }

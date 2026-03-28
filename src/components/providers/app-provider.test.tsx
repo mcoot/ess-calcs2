@@ -3,16 +3,7 @@ import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppProvider, useAppContext } from "./app-provider";
 import { FakeStore } from "@/store/fake/fake.store";
-import type { ForexService } from "@/services/forex.service";
-import { aud, usd } from "@/types";
-
-// Minimal forex stub — tests don't exercise conversion, just verify wiring
-const stubForex: ForexService = {
-  getRate: () => ({ rate: 0.75, rateDate: new Date() }),
-  usdToAud: (amount) => ({ aud: aud(amount as number / 0.75), rate: 0.75, rateDate: new Date() }),
-  audToUsd: (amount) => ({ usd: usd(amount as number * 0.75), rate: 0.75, rateDate: new Date() }),
-  getDateRange: () => ({ earliest: new Date(), latest: new Date() }),
-};
+import { stubForex } from "@/test-helpers";
 
 describe("AppProvider", () => {
   it("useAppContext throws when used outside provider", () => {

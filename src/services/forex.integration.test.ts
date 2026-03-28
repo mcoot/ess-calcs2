@@ -5,10 +5,7 @@ import { parseForexCsv } from "@/parsers/forex.parser";
 import { createForexService, type ForexService } from "./forex.service";
 import { AppError, ErrorCodes } from "@/lib/errors";
 import { usd } from "@/types";
-
-function d(y: number, m: number, day: number): Date {
-  return new Date(Date.UTC(y, m - 1, day));
-}
+import { d } from "@/test-helpers";
 
 describe("ForexService integration (real CSV)", () => {
   let service: ForexService;

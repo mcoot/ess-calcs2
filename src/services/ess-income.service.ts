@@ -124,19 +124,12 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
     }
 
     for (const ri of releaseIncomes) {
-      // Standard portion → vest-date FY
-      if ((ri.standardIncomeAud as number) !== 0) {
-        addToFy(ri.financialYear, ri.standardIncomeAud, ri);
-      }
+      // Standard portion → vest-date FY (adding 0 is a no-op on the total)
+      addToFy(ri.financialYear, ri.standardIncomeAud, ri);
 
       // 30-day lots → each lot's sale-date FY
       for (const lot of ri.thirtyDayLots) {
         addToFy(lot.financialYear, lot.essIncomeAud, ri);
-      }
-
-      // If release has no income at all, still group it under its FY
-      if ((ri.standardIncomeAud as number) === 0 && ri.thirtyDayLots.length === 0) {
-        addToFy(ri.financialYear, aud(0), ri);
       }
     }
 

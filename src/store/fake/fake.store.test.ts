@@ -2,10 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { FakeStore } from "./fake.store";
 import type { Award, VestingScheduleEntry, RsuRelease, SaleLot, ForexRate } from "@/types";
 import { usd } from "@/types";
-
-function d(y: number, m: number, day: number): Date {
-  return new Date(Date.UTC(y, m - 1, day));
-}
+import { d } from "@/test-helpers";
 
 const award: Award = {
   grantDate: d(2018, 2, 15),

@@ -4,12 +4,7 @@ import type { SaleLotCgt } from "./cgt.service";
 import { createForexService } from "./forex.service";
 import type { SaleLot, ForexRate } from "@/types";
 import { usd, aud } from "@/types";
-
-// ── Helpers ─────────────────────────────────────────────────────────
-
-function d(y: number, m: number, day: number): Date {
-  return new Date(Date.UTC(y, m - 1, day));
-}
+import { d } from "@/test-helpers";
 
 const MILLIS_PER_DAY = 86_400_000;
 

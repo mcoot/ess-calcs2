@@ -3,10 +3,7 @@ import { createForexService } from "./forex.service";
 import { AppError, ErrorCodes } from "@/lib/errors";
 import { usd, aud } from "@/types";
 import type { ForexRate } from "@/types";
-
-function d(y: number, m: number, day: number): Date {
-  return new Date(Date.UTC(y, m - 1, day));
-}
+import { d } from "@/test-helpers";
 
 const TEST_RATES: ForexRate[] = [
   { date: d(2023, 1, 3), audToUsd: 0.6828 },

@@ -4,12 +4,7 @@ import type { ReleaseEssIncome } from "./ess-income.service";
 import { createForexService } from "./forex.service";
 import type { RsuRelease, SaleLot, ForexRate } from "@/types";
 import { usd } from "@/types";
-
-// ── Helpers ─────────────────────────────────────────────────────────
-
-function d(y: number, m: number, day: number): Date {
-  return new Date(Date.UTC(y, m - 1, day));
-}
+import { d } from "@/test-helpers";
 
 function makeRelease(overrides: Partial<RsuRelease> & Pick<RsuRelease, "releaseDate" | "sharesVested" | "fmvPerShare" | "releaseReferenceNumber">): RsuRelease {
   return {

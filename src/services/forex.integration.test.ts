@@ -11,7 +11,7 @@ describe("ForexService integration (real CSV)", () => {
   let service: ForexService;
 
   beforeAll(() => {
-    const csvPath = path.resolve(__dirname, "../../data/public/rba-forex.csv");
+    const csvPath = path.resolve(__dirname, "../../public/rba-forex.csv");
     const csv = fs.readFileSync(csvPath, "utf-8");
     const rates = parseForexCsv(csv);
     service = createForexService(rates);

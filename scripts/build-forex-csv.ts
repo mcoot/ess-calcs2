@@ -11,6 +11,6 @@ if (args.length === 0) {
 const rawTexts = args.map((f) => fs.readFileSync(f, "utf-8"));
 const output = cleanRbaCsv(rawTexts);
 
-const outPath = path.resolve(__dirname, "../data/public/rba-forex.csv");
+const outPath = path.resolve(__dirname, "../public/rba-forex.csv");
 fs.writeFileSync(outPath, output, "utf-8");
 console.log(`Wrote ${output.split("\n").filter((l) => l).length} rows to ${outPath}`);

@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/awards", label: "Awards" },
   { href: "/releases", label: "Releases" },
   { href: "/sales", label: "Sales" },
+  { href: "/reports", label: "Reports" },
 ];
 
 export function AppHeader() {

@@ -27,10 +27,12 @@ describe("AppHeader", () => {
     const awardsLink = screen.getByRole("link", { name: "Awards" });
     const releasesLink = screen.getByRole("link", { name: "Releases" });
     const salesLink = screen.getByRole("link", { name: "Sales" });
+    const reportsLink = screen.getByRole("link", { name: "Reports" });
     expect(importLink).toHaveAttribute("href", "/import");
     expect(awardsLink).toHaveAttribute("href", "/awards");
     expect(releasesLink).toHaveAttribute("href", "/releases");
     expect(salesLink).toHaveAttribute("href", "/sales");
+    expect(reportsLink).toHaveAttribute("href", "/reports");
   });
 
   it("renders title as a link to the dashboard", () => {

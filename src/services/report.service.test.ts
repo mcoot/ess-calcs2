@@ -351,6 +351,102 @@ describe("ReportService", () => {
     });
   });
 
+  describe("generateFyReport — edge cases", () => {
+    it("partial data: releases only (no sales) — ESS rows present, CGT empty", () => {
+      const releases: RsuRelease[] = [
+        makeRelease({
+          releaseDate: d(2023, 8, 14),
+          sharesVested: 50,
+          fmvPerShare: usd(120),
+          releaseReferenceNumber: "RB-ONLY",
+        }),
+      ];
+
+      const essIncome = createEssIncomeService(forex);
+      const cgt = createCgtService(forex);
+      const svc = createReportService();
+
+      const report = svc.generateFyReport("2023-24", releases, [], essIncome, cgt);
+
+      expect(report.essIncomeRows).toHaveLength(1);
+      expect(report.essIncomeRows[0].shares).toBe(50);
+      expect(report.cgtRows).toHaveLength(0);
+      expect(report.cgtSummary.netCapitalGain).toBe(aud(0));
+      expect(report.thirtyDaySummaryRows).toHaveLength(0);
+    });
+
+    it("CGT-only FY: sale lots in FY with no vesting releases", () => {
+      const releases: RsuRelease[] = [
+        makeRelease({
+          releaseDate: d(2022, 10, 3), // FY 2022-23, NOT 2024-25
+          sharesVested: 50,
+          fmvPerShare: usd(100),
+          releaseReferenceNumber: "RB-OLD",
+        }),
+      ];
+
+      const saleLots: SaleLot[] = [
+        makeSaleLot({
+          originatingReleaseRef: "RB-OLD",
+          saleDate: d(2024, 9, 2), // FY 2024-25
+          originalAcquisitionDate: d(2022, 10, 3),
+          soldWithin30Days: false,
+          sharesSold: 10,
+          saleProceeds: usd(1800),
+        }),
+      ];
+
+      const essIncome = createEssIncomeService(forex);
+      const cgt = createCgtService(forex);
+      const svc = createReportService();
+
+      const report = svc.generateFyReport("2024-25", releases, saleLots, essIncome, cgt);
+
+      expect(report.essIncomeRows).toHaveLength(0);
+      expect(report.essIncomeTotalAud).toBe(aud(0));
+      expect(report.cgtRows).toHaveLength(1);
+      expect(report.cgtRows[0].sharesSold).toBe(10);
+    });
+
+    it("zero brokerage and tiny fees still produce correct net proceeds", () => {
+      const releases: RsuRelease[] = [
+        makeRelease({
+          releaseDate: d(2022, 10, 3),
+          sharesVested: 50,
+          fmvPerShare: usd(100),
+          releaseReferenceNumber: "RB-TINY",
+        }),
+      ];
+
+      const saleLots: SaleLot[] = [
+        makeSaleLot({
+          originatingReleaseRef: "RB-TINY",
+          saleDate: d(2024, 1, 15),
+          originalAcquisitionDate: d(2022, 10, 3),
+          soldWithin30Days: false,
+          sharesSold: 10,
+          saleProceeds: usd(2000),
+          brokerageCommission: usd(0),
+          supplementalTransactionFee: usd(0.01),
+        }),
+      ];
+
+      const essIncome = createEssIncomeService(forex);
+      const cgt = createCgtService(forex);
+      const svc = createReportService();
+
+      const report = svc.generateFyReport("2023-24", releases, saleLots, essIncome, cgt);
+
+      expect(report.cgtRows).toHaveLength(1);
+      const row = report.cgtRows[0];
+      expect(row.brokerageUsd).toBe(usd(0));
+      expect(row.feesUsd).toBe(usd(0.01));
+      expect(row.grossProceedsUsd).toBe(usd(2000));
+      // Net = 2000 - 0 - 0.01 = 1999.99
+      expect(row.netProceedsUsd).toBeCloseTo(1999.99, 2);
+    });
+  });
+
   describe("availableFinancialYears", () => {
     it("returns sorted unique FYs from releases and sales", () => {
       const releases: RsuRelease[] = [

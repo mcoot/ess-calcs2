@@ -35,6 +35,9 @@ export interface CgtReportRow {
   costBasisAud: AUD;
   costBasisRate: number;
   costBasisRateDate: Date;
+  grossProceedsUsd: USD;
+  brokerageUsd: USD;
+  feesUsd: USD;
   netProceedsUsd: USD;
   netProceedsAud: AUD;
   proceedsRate: number;
@@ -179,6 +182,9 @@ export function createReportService(): ReportService {
       costBasisAud: lot.costBasisAud,
       costBasisRate: lot.acquisitionForexRate,
       costBasisRateDate: lot.acquisitionForexDate,
+      grossProceedsUsd: lot.grossProceedsUsd,
+      brokerageUsd: lot.brokerageUsd,
+      feesUsd: lot.feesUsd,
       netProceedsUsd: lot.netProceedsUsd,
       netProceedsAud: lot.netProceedsAud,
       proceedsRate: lot.saleForexRate,

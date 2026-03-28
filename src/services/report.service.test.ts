@@ -257,6 +257,42 @@ describe("ReportService", () => {
       expect(report.cgtSummary).toBeDefined();
       expect(report.cgtSummary.financialYear).toBe("2023-24");
     });
+
+    it("includes gross proceeds, brokerage, and fees on CGT rows", () => {
+      const releases: RsuRelease[] = [
+        makeRelease({
+          releaseDate: d(2022, 10, 3),
+          sharesVested: 50,
+          fmvPerShare: usd(100),
+          releaseReferenceNumber: "RB-FEES",
+        }),
+      ];
+
+      const saleLots: SaleLot[] = [
+        makeSaleLot({
+          originatingReleaseRef: "RB-FEES",
+          saleDate: d(2024, 1, 15),
+          originalAcquisitionDate: d(2022, 10, 3),
+          soldWithin30Days: false,
+          sharesSold: 10,
+          saleProceeds: usd(3000),
+          brokerageCommission: usd(14.95),
+          supplementalTransactionFee: usd(0.08),
+        }),
+      ];
+
+      const essIncome = createEssIncomeService(forex);
+      const cgt = createCgtService(forex);
+      const svc = createReportService();
+
+      const report = svc.generateFyReport("2023-24", releases, saleLots, essIncome, cgt);
+
+      expect(report.cgtRows).toHaveLength(1);
+      const row = report.cgtRows[0];
+      expect(row.grossProceedsUsd).toBe(usd(3000));
+      expect(row.brokerageUsd).toBe(usd(14.95));
+      expect(row.feesUsd).toBe(usd(0.08));
+    });
   });
 
   describe("generateFyReport — FY filtering", () => {

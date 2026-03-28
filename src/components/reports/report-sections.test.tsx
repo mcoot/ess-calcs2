@@ -48,6 +48,9 @@ const cgtRow: CgtReportRow = {
   costBasisAud: aud(3076.92),
   costBasisRate: 0.65,
   costBasisRateDate: d(2022, 10, 3),
+  grossProceedsUsd: usd(3000),
+  brokerageUsd: usd(0),
+  feesUsd: usd(0),
   netProceedsUsd: usd(3000),
   netProceedsAud: aud(4411.76),
   proceedsRate: 0.68,
@@ -126,10 +129,12 @@ describe("CgtSection", () => {
     expect(screen.getByText(/Item 18/)).toBeDefined();
   });
 
-  it("renders gain/loss walkthrough", () => {
+  it("renders gain/loss walkthrough with after-losses intermediates", () => {
     render(<CgtSection rows={[cgtRow]} summary={cgtSummary} fy="2023-24" />);
     expect(screen.getByText(/Net capital gain/i)).toBeDefined();
     expect(screen.getByText("A$1,167.42")).toBeDefined();
+    expect(screen.getByText(/Short-term after losses/)).toBeDefined();
+    expect(screen.getByText(/Long-term after losses/)).toBeDefined();
   });
 
   it("renders detail rows with discount badge", () => {

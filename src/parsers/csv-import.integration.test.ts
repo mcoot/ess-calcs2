@@ -25,7 +25,7 @@ describe("CSV import integration (real sample files)", () => {
     expect(first.sharesGranted).toBe(475);
   });
 
-  it("Full Vesting Schedule: parses all 134 entries", () => {
+  it("Full Vesting Schedule: parses all 135 entries", () => {
     const result = parseVestingSchedule(readSample("Full Vesting Schedule.csv"));
     expect(result.ok).toBe(true);
     if (!result.ok) return;

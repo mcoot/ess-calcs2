@@ -2,28 +2,42 @@ import type { DataStore } from "../data-store";
 import type { Award, VestingScheduleEntry, RsuRelease, SaleLot, ForexRate, AppConfig } from "@/types";
 
 export class FakeStore implements DataStore {
-  getAwards(): Promise<Award[]> { throw new Error("not implemented"); }
-  saveAwards(_awards: Award[]): Promise<void> { throw new Error("not implemented"); }
-  clearAwards(): Promise<void> { throw new Error("not implemented"); }
+  private awards: Award[] = [];
+  private vestingSchedule: VestingScheduleEntry[] = [];
+  private releases: RsuRelease[] = [];
+  private saleLots: SaleLot[] = [];
+  private forexRates: ForexRate[] = [];
+  private config: AppConfig | null = null;
 
-  getVestingSchedule(): Promise<VestingScheduleEntry[]> { throw new Error("not implemented"); }
-  saveVestingSchedule(_entries: VestingScheduleEntry[]): Promise<void> { throw new Error("not implemented"); }
-  clearVestingSchedule(): Promise<void> { throw new Error("not implemented"); }
+  async getAwards(): Promise<Award[]> { return this.awards; }
+  async saveAwards(awards: Award[]): Promise<void> { this.awards = awards; }
+  async clearAwards(): Promise<void> { this.awards = []; }
 
-  getRsuReleases(): Promise<RsuRelease[]> { throw new Error("not implemented"); }
-  saveRsuReleases(_releases: RsuRelease[]): Promise<void> { throw new Error("not implemented"); }
-  clearRsuReleases(): Promise<void> { throw new Error("not implemented"); }
+  async getVestingSchedule(): Promise<VestingScheduleEntry[]> { return this.vestingSchedule; }
+  async saveVestingSchedule(entries: VestingScheduleEntry[]): Promise<void> { this.vestingSchedule = entries; }
+  async clearVestingSchedule(): Promise<void> { this.vestingSchedule = []; }
 
-  getSaleLots(): Promise<SaleLot[]> { throw new Error("not implemented"); }
-  saveSaleLots(_lots: SaleLot[]): Promise<void> { throw new Error("not implemented"); }
-  clearSaleLots(): Promise<void> { throw new Error("not implemented"); }
+  async getRsuReleases(): Promise<RsuRelease[]> { return this.releases; }
+  async saveRsuReleases(releases: RsuRelease[]): Promise<void> { this.releases = releases; }
+  async clearRsuReleases(): Promise<void> { this.releases = []; }
 
-  getForexRates(): Promise<ForexRate[]> { throw new Error("not implemented"); }
-  saveForexRates(_rates: ForexRate[]): Promise<void> { throw new Error("not implemented"); }
-  clearForexRates(): Promise<void> { throw new Error("not implemented"); }
+  async getSaleLots(): Promise<SaleLot[]> { return this.saleLots; }
+  async saveSaleLots(lots: SaleLot[]): Promise<void> { this.saleLots = lots; }
+  async clearSaleLots(): Promise<void> { this.saleLots = []; }
 
-  getConfig(): Promise<AppConfig | null> { throw new Error("not implemented"); }
-  saveConfig(_config: AppConfig): Promise<void> { throw new Error("not implemented"); }
+  async getForexRates(): Promise<ForexRate[]> { return this.forexRates; }
+  async saveForexRates(rates: ForexRate[]): Promise<void> { this.forexRates = rates; }
+  async clearForexRates(): Promise<void> { this.forexRates = []; }
 
-  clearAll(): Promise<void> { throw new Error("not implemented"); }
+  async getConfig(): Promise<AppConfig | null> { return this.config; }
+  async saveConfig(config: AppConfig): Promise<void> { this.config = config; }
+
+  async clearAll(): Promise<void> {
+    this.awards = [];
+    this.vestingSchedule = [];
+    this.releases = [];
+    this.saleLots = [];
+    this.forexRates = [];
+    this.config = null;
+  }
 }

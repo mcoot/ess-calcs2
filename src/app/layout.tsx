@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import "./globals.css";
 import { AppProvider } from "@/components/providers/app-provider";
 import { AppHeader } from "@/components/header/app-header";
-import { FakeStore } from "@/store/fake/fake.store";
+import { IndexedDBStore } from "@/store/idb.store";
 import { parseForexCsv } from "@/parsers/forex.parser";
 import { createForexService, type ForexService } from "@/services/forex.service";
 import type { DataStore } from "@/store/data-store";
@@ -18,7 +18,7 @@ export default function RootLayout({
 
   useEffect(() => {
     async function init() {
-      const store = new FakeStore();
+      const store = await IndexedDBStore.create();
       const res = await fetch("/rba-forex.csv");
       const csv = await res.text();
       const rates = parseForexCsv(csv);

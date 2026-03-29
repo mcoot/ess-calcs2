@@ -93,7 +93,7 @@ describe("ReleasesTable", () => {
   it("clicking expand shows forex rate detail", async () => {
     const user = userEvent.setup();
     render(<ReleasesTable incomes={[income]} releases={[release]} displayCurrency="AUD" />);
-    await user.click(screen.getByRole("button", { name: /expand/i }));
+    await user.click(screen.getAllByRole("row")[1]); // click data row to expand
     expect(screen.getByText(/0\.75/)).toBeDefined();
   });
 });

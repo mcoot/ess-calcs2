@@ -5,6 +5,7 @@ import type { RsuRelease } from "@/types";
 import type { ReleaseEssIncome } from "@/services/ess-income.service";
 import { formatCurrency } from "@/lib/money";
 import { formatDate, formatShares } from "@/lib/format";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from "@/components/ui/table";
@@ -70,15 +71,11 @@ function ReleaseRow({
 
   return (
     <>
-      <TableRow>
-        <TableCell>
-          <button
-            aria-label="Expand"
-            className="text-muted-foreground hover:text-foreground"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? "▼" : "▶"}
-          </button>
+      <TableRow className="cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <TableCell className="w-8 px-2">
+          {expanded
+            ? <ChevronDown className="h-4 w-4" />
+            : <ChevronRight className="h-4 w-4" />}
         </TableCell>
         <TableCell>{formatDate(income.releaseDate)}</TableCell>
         <TableCell>{income.grantNumber}</TableCell>

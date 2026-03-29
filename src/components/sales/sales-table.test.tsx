@@ -100,7 +100,7 @@ describe("SalesTable", () => {
   it("clicking expand shows CGT detail with forex rates", async () => {
     const user = userEvent.setup();
     render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} displayCurrency="AUD" />);
-    await user.click(screen.getByRole("button", { name: /expand/i }));
+    await user.click(screen.getAllByRole("row")[2]); // click data row to expand (0=header, 1=group header, 2=data)
     // Should show both forex rates in the detail
     expect(screen.getByText(/0\.67/)).toBeDefined();
     expect(screen.getByText(/0\.74/)).toBeDefined();
@@ -158,7 +158,7 @@ describe("SalesTable", () => {
     expect(screen.getByText("US$5,000.00")).toBeDefined();
   });
 
-  it("30-day lot has expand button showing ESS income info", async () => {
+  it("30-day lot row expands to show ESS income info", async () => {
     const user = userEvent.setup();
     const lot30: SaleLot = {
       ...normalLot,
@@ -171,9 +171,8 @@ describe("SalesTable", () => {
 
     render(<SalesTable lots={[lot30]} cgtResults={[]} displayCurrency="AUD" />);
 
-    // Should have an expand button despite no CGT data
-    const expandBtn = screen.getByRole("button", { name: /expand/i });
-    await user.click(expandBtn);
+    // Should have an expandable row despite no CGT data
+    await user.click(screen.getAllByRole("row")[2]); // click data row to expand (0=header, 1=group header, 2=data)
 
     // Should show ESS income messaging and release ref
     expect(screen.getByText(/ESS income/i)).toBeDefined();

@@ -7,6 +7,7 @@ import type { SaleLotCgt } from "@/services/cgt.service";
 import { formatCurrency } from "@/lib/money";
 import { formatDate, formatShares } from "@/lib/format";
 import { toFyString } from "@/lib/dates";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
@@ -156,15 +157,11 @@ function SaleRow({ lot, cgt, displayCurrency }: { lot: SaleLot; cgt?: SaleLotCgt
 
   return (
     <>
-      <TableRow>
-        <TableCell>
-          <button
-            aria-label="Expand"
-            className="text-muted-foreground hover:text-foreground"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? "▼" : "▶"}
-          </button>
+      <TableRow className="cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <TableCell className="w-8 px-2">
+          {expanded
+            ? <ChevronDown className="h-4 w-4" />
+            : <ChevronRight className="h-4 w-4" />}
         </TableCell>
         <TableCell>{formatDate(lot.saleDate)}</TableCell>
         <TableCell>{lot.grantNumber}</TableCell>

@@ -1,18 +1,25 @@
-import type { SaleLot } from "@/types";
-import { SaleLotSchema } from "@/types";
-import type { ParseResult } from "./csv-utils";
-import { splitCsvRow, splitCsvLines, parseMoney, parseShares, parseBoolean, wrapParse } from "./csv-utils";
-import { parseDDMonYYYY } from "@/lib/dates";
+import type { SaleLot } from '@/types'
+import { SaleLotSchema } from '@/types'
+import type { ParseResult } from './csv-utils'
+import {
+  splitCsvRow,
+  splitCsvLines,
+  parseMoney,
+  parseShares,
+  parseBoolean,
+  wrapParse,
+} from './csv-utils'
+import { parseDDMonYYYY } from '@/lib/dates'
 
 export function parseSales(csv: string): ParseResult<SaleLot> {
   return wrapParse(() => {
-    const lines = splitCsvLines(csv, 2);
-    const lots: SaleLot[] = [];
+    const lines = splitCsvLines(csv, 2)
+    const lots: SaleLot[] = []
 
     for (const line of lines) {
-      const cols = splitCsvRow(line);
-      const withdrawalRef = cols[2]?.trim();
-      if (!withdrawalRef) continue;
+      const cols = splitCsvRow(line)
+      const withdrawalRef = cols[2]?.trim()
+      if (!withdrawalRef) continue
 
       lots.push(
         SaleLotSchema.parse({
@@ -32,10 +39,10 @@ export function parseSales(csv: string): ParseResult<SaleLot> {
           salePricePerShare: parseMoney(cols[18]),
           brokerageCommission: parseMoney(cols[20]),
           supplementalTransactionFee: parseMoney(cols[22]),
-        })
-      );
+        }),
+      )
     }
 
-    return lots;
-  });
+    return lots
+  })
 }

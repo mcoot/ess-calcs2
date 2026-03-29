@@ -1,22 +1,19 @@
-"use client";
+'use client'
 
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
-import type { SharePricePoint } from "@/lib/chart-data";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts'
+import type { SharePricePoint } from '@/lib/chart-data'
 
 interface SharePriceChartProps {
-  data: SharePricePoint[];
+  data: SharePricePoint[]
 }
 
 export function SharePriceChart({ data }: SharePriceChartProps) {
   if (data.length === 0) {
-    return <p className="py-8 text-center text-muted-foreground" data-testid="share-price-empty">No share price data available.</p>;
+    return (
+      <p className="py-8 text-center text-muted-foreground" data-testid="share-price-empty">
+        No share price data available.
+      </p>
+    )
   }
 
   return (
@@ -25,10 +22,13 @@ export function SharePriceChart({ data }: SharePriceChartProps) {
         <LineChart data={data}>
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={(v: number) => `US$${v}`} />
-          <Tooltip formatter={(v: number) => `US$${v.toLocaleString()}`} labelFormatter={(l) => `Date: ${l}`} />
+          <Tooltip
+            formatter={(v: number) => `US$${v.toLocaleString()}`}
+            labelFormatter={(l) => `Date: ${l}`}
+          />
           <Line type="monotone" dataKey="fmvPerShare" stroke="#2563eb" dot={{ r: 4 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>
-  );
+  )
 }

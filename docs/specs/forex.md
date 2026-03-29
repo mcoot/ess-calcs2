@@ -12,25 +12,26 @@ The bundled file `public/rba-forex.csv` is the RBA's F11.1 Exchange Rates table.
 
 **Header structure (rows 1-11)**:
 
-| Row | Content |
-|-----|---------|
-| 1 | Title: `F11.1  EXCHANGE RATES` |
-| 2 | Column headers: `Title,A$1=USD,Trade-weighted Index May 1970 = 100,A$1=CNY,...` |
-| 3 | Descriptions |
-| 4 | Frequency: `Daily` |
-| 5 | Type: `Indicative` |
-| 6 | Units: `USD,Index,CNY,...` |
-| 7 | (empty) |
-| 8 | (empty) |
-| 9 | Source: `WM/Reuters,RBA,...` |
-| 10 | Publication date |
-| 11 | Series ID: `FXRUSD,FXRTWI,...` |
+| Row | Content                                                                         |
+| --- | ------------------------------------------------------------------------------- |
+| 1   | Title: `F11.1  EXCHANGE RATES`                                                  |
+| 2   | Column headers: `Title,A$1=USD,Trade-weighted Index May 1970 = 100,A$1=CNY,...` |
+| 3   | Descriptions                                                                    |
+| 4   | Frequency: `Daily`                                                              |
+| 5   | Type: `Indicative`                                                              |
+| 6   | Units: `USD,Index,CNY,...`                                                      |
+| 7   | (empty)                                                                         |
+| 8   | (empty)                                                                         |
+| 9   | Source: `WM/Reuters,RBA,...`                                                    |
+| 10  | Publication date                                                                |
+| 11  | Series ID: `FXRUSD,FXRTWI,...`                                                  |
 
 **Data rows start at row 12.**
 
 **Data format**: `DD-Mon-YYYY,rate,...`
 
 Example:
+
 ```
 03-Jan-2023,0.6828,61.40,4.6994,...
 04-Jan-2023,0.6809,61.50,4.6906,...
@@ -74,6 +75,7 @@ USD = AUD × audToUsd
 ### Example
 
 On 03-Jan-2023, `audToUsd = 0.6828`:
+
 - $100 USD = $100 / 0.6828 = $146.46 AUD
 - $100 AUD = $100 × 0.6828 = $68.28 USD
 
@@ -96,6 +98,7 @@ function getRate(date: Date): ForexRate {
 ### Rationale
 
 The ATO accepts "a reasonable exchange rate" - the nearest prior business day rate from the RBA is the most defensible choice. The RBA does not publish rates on:
+
 - Weekends (Saturday, Sunday)
 - Australian public holidays
 - RBA closure days
@@ -112,29 +115,29 @@ interface ForexService {
    * Convert USD to AUD using the rate on the given date.
    * Falls back to nearest prior business day if no rate on exact date.
    */
-  usdToAud(amount: USD, date: Date): { aud: AUD; rate: number; rateDate: Date };
+  usdToAud(amount: USD, date: Date): { aud: AUD; rate: number; rateDate: Date }
 
   /**
    * Convert AUD to USD using the rate on the given date.
    */
-  audToUsd(amount: AUD, date: Date): { usd: USD; rate: number; rateDate: Date };
+  audToUsd(amount: AUD, date: Date): { usd: USD; rate: number; rateDate: Date }
 
   /**
    * Get the raw AUD/USD rate for a date.
    * Returns the rate and the actual date it was sourced from.
    */
-  getRate(date: Date): { rate: number; rateDate: Date };
+  getRate(date: Date): { rate: number; rateDate: Date }
 
   /**
    * Check if rates are available for a date range.
    * Returns dates within the range that have no coverage.
    */
-  checkCoverage(startDate: Date, endDate: Date): { covered: boolean; gaps: DateRange[] };
+  checkCoverage(startDate: Date, endDate: Date): { covered: boolean; gaps: DateRange[] }
 
   /**
    * Get the date range covered by loaded rates.
    */
-  getDateRange(): { earliest: Date; latest: Date };
+  getDateRange(): { earliest: Date; latest: Date }
 }
 ```
 
@@ -151,6 +154,7 @@ The RBA CSV is expanded to cover **2018-present** (publicly available from the R
 ### Gap Handling
 
 For dates before the bundled data range:
+
 - `getRate()` throws a `MissingRateError` with the requested date
 - The UI displays a warning: "No exchange rate available for [date]. Rate data starts from [earliest date]."
 - No silent fallbacks or approximations for missing data

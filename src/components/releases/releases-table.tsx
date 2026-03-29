@@ -1,19 +1,24 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import type { RsuRelease } from "@/types";
-import type { ReleaseEssIncome } from "@/services/ess-income.service";
-import { formatCurrency } from "@/lib/money";
-import { formatDate, formatShares } from "@/lib/format";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { useState } from 'react'
+import type { RsuRelease } from '@/types'
+import type { ReleaseEssIncome } from '@/services/ess-income.service'
+import { formatCurrency } from '@/lib/money'
+import { formatDate, formatShares } from '@/lib/format'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from "@/components/ui/table";
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/table'
 
 interface ReleasesTableProps {
-  incomes: ReleaseEssIncome[];
-  releases: RsuRelease[];
-  displayCurrency: "USD" | "AUD";
+  incomes: ReleaseEssIncome[]
+  releases: RsuRelease[]
+  displayCurrency: 'USD' | 'AUD'
 }
 
 export function ReleasesTable({ incomes, releases, displayCurrency }: ReleasesTableProps) {
@@ -22,12 +27,10 @@ export function ReleasesTable({ incomes, releases, displayCurrency }: ReleasesTa
       <p className="text-sm text-muted-foreground">
         No releases loaded. Import an RSU Releases CSV to get started.
       </p>
-    );
+    )
   }
 
-  const nameByRef = new Map(
-    releases.map((r) => [r.releaseReferenceNumber, r.grantName])
-  );
+  const nameByRef = new Map(releases.map((r) => [r.releaseReferenceNumber, r.grantName]))
 
   return (
     <Table>
@@ -49,13 +52,13 @@ export function ReleasesTable({ incomes, releases, displayCurrency }: ReleasesTa
           <ReleaseRow
             key={inc.releaseRef}
             income={inc}
-            grantName={nameByRef.get(inc.releaseRef) ?? ""}
+            grantName={nameByRef.get(inc.releaseRef) ?? ''}
             displayCurrency={displayCurrency}
           />
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }
 
 function ReleaseRow({
@@ -63,41 +66,35 @@ function ReleaseRow({
   grantName,
   displayCurrency,
 }: {
-  income: ReleaseEssIncome;
-  grantName: string;
-  displayCurrency: "USD" | "AUD";
+  income: ReleaseEssIncome
+  grantName: string
+  displayCurrency: 'USD' | 'AUD'
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <>
       <TableRow className="cursor-pointer" onClick={() => setExpanded(!expanded)}>
         <TableCell className="w-8 px-2">
-          {expanded
-            ? <ChevronDown className="h-4 w-4" />
-            : <ChevronRight className="h-4 w-4" />}
+          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </TableCell>
         <TableCell>{formatDate(income.releaseDate)}</TableCell>
         <TableCell>{income.grantNumber}</TableCell>
         <TableCell>{grantName}</TableCell>
+        <TableCell className="text-right">{formatShares(income.sharesVested)}</TableCell>
         <TableCell className="text-right">
-          {formatShares(income.sharesVested)}
-        </TableCell>
-        <TableCell className="text-right">
-          {formatCurrency(income.fmvPerShare as number, "USD")}
+          {formatCurrency(income.fmvPerShare as number, 'USD')}
         </TableCell>
         <TableCell className="text-right">
           {formatCurrency(
-            displayCurrency === "USD"
+            displayCurrency === 'USD'
               ? (income.totalEssIncomeUsd as number)
               : (income.totalEssIncomeAud as number),
             displayCurrency,
           )}
         </TableCell>
         <TableCell className="text-right">
-          {income.thirtyDayLots.length > 0
-            ? income.thirtyDayLots.length
-            : "—"}
+          {income.thirtyDayLots.length > 0 ? income.thirtyDayLots.length : '—'}
         </TableCell>
         <TableCell>{income.financialYear}</TableCell>
       </TableRow>
@@ -108,21 +105,26 @@ function ReleaseRow({
               <div>
                 <strong>Standard ESS Income</strong>
                 <span className="ml-2">
-                  {income.standardShares} shares × {formatCurrency(income.fmvPerShare as number, "USD")}
-                  {" = "}{formatCurrency(income.standardIncomeUsd as number, "USD")}
+                  {income.standardShares} shares ×{' '}
+                  {formatCurrency(income.fmvPerShare as number, 'USD')}
+                  {' = '}
+                  {formatCurrency(income.standardIncomeUsd as number, 'USD')}
                 </span>
               </div>
               <div>
                 Forex rate: {income.standardForexRate} ({formatDate(income.standardForexDate)})
-                {" → "}{formatCurrency(income.standardIncomeAud as number, "AUD")}
+                {' → '}
+                {formatCurrency(income.standardIncomeAud as number, 'AUD')}
               </div>
               {income.thirtyDayLots.map((lot) => (
                 <div key={lot.saleLotRef} className="border-t pt-2">
                   <strong>30-Day Lot</strong> ({lot.saleLotRef})
                   <span className="ml-2">
                     {lot.sharesSold} shares sold {formatDate(lot.saleDate)}
-                    {" → "}{formatCurrency(lot.essIncomeAud as number, "AUD")}
-                    {" (rate: "}{lot.forexRate})
+                    {' → '}
+                    {formatCurrency(lot.essIncomeAud as number, 'AUD')}
+                    {' (rate: '}
+                    {lot.forexRate})
                   </span>
                 </div>
               ))}
@@ -131,5 +133,5 @@ function ReleaseRow({
         </TableRow>
       )}
     </>
-  );
+  )
 }

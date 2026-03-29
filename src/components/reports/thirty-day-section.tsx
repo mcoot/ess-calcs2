@@ -1,14 +1,18 @@
-import type { ThirtyDaySummaryRow } from "@/services/report.service";
-import { formatCurrency } from "@/lib/money";
-import { formatDate } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ThirtyDaySummaryRow } from '@/services/report.service'
+import { formatCurrency } from '@/lib/money'
+import { formatDate } from '@/lib/format'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Table, TableBody, TableCell, TableHead,
-  TableHeader, TableRow,
-} from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface ThirtyDaySectionProps {
-  rows: ThirtyDaySummaryRow[];
+  rows: ThirtyDaySummaryRow[]
 }
 
 export function ThirtyDaySection({ rows }: ThirtyDaySectionProps) {
@@ -45,10 +49,10 @@ export function ThirtyDaySection({ rows }: ThirtyDaySectionProps) {
                   <TableCell>{row.grantNumber}</TableCell>
                   <TableCell className="text-right">{row.shares}</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(row.saleProceedsUsd as number, "USD")}
+                    {formatCurrency(row.saleProceedsUsd as number, 'USD')}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(row.essIncomeAud as number, "AUD")}
+                    {formatCurrency(row.essIncomeAud as number, 'AUD')}
                   </TableCell>
                 </TableRow>
               ))}
@@ -57,5 +61,5 @@ export function ThirtyDaySection({ rows }: ThirtyDaySectionProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -1,18 +1,18 @@
-import type { Award } from "@/types";
-import { AwardSchema } from "@/types";
-import type { ParseResult } from "./csv-utils";
-import { splitCsvRow, splitCsvLines, parseMoney, parseShares, wrapParse } from "./csv-utils";
-import { parseDDMonYYYY } from "@/lib/dates";
+import type { Award } from '@/types'
+import { AwardSchema } from '@/types'
+import type { ParseResult } from './csv-utils'
+import { splitCsvRow, splitCsvLines, parseMoney, parseShares, wrapParse } from './csv-utils'
+import { parseDDMonYYYY } from '@/lib/dates'
 
 export function parseAwardSummary(csv: string): ParseResult<Award> {
   return wrapParse(() => {
-    const lines = splitCsvLines(csv, 3);
-    const awards: Award[] = [];
+    const lines = splitCsvLines(csv, 3)
+    const awards: Award[] = []
 
     for (const line of lines) {
-      const cols = splitCsvRow(line);
-      const grantNumberRaw = cols[2]?.trim();
-      if (!grantNumberRaw) continue;
+      const cols = splitCsvRow(line)
+      const grantNumberRaw = cols[2]?.trim()
+      if (!grantNumberRaw) continue
 
       awards.push(
         AwardSchema.parse({
@@ -23,10 +23,10 @@ export function parseAwardSummary(csv: string): ParseResult<Award> {
           grantReason: cols[5].trim(),
           conversionPrice: parseMoney(cols[6]),
           sharesGranted: parseShares(cols[8]),
-        })
-      );
+        }),
+      )
     }
 
-    return awards;
-  });
+    return awards
+  })
 }

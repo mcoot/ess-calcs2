@@ -1,24 +1,21 @@
-"use client";
+'use client'
 
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
-import type { CumulativeEssPoint } from "@/lib/chart-data";
-import { currencyPrefix } from "@/lib/money";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts'
+import type { CumulativeEssPoint } from '@/lib/chart-data'
+import { currencyPrefix } from '@/lib/money'
 
 interface CumulativeEssChartProps {
-  data: CumulativeEssPoint[];
-  currency: "USD" | "AUD";
+  data: CumulativeEssPoint[]
+  currency: 'USD' | 'AUD'
 }
 
 export function CumulativeEssChart({ data, currency }: CumulativeEssChartProps) {
   if (data.length === 0) {
-    return <p className="py-8 text-center text-muted-foreground" data-testid="cumulative-ess-empty">No cumulative income data available.</p>;
+    return (
+      <p className="py-8 text-center text-muted-foreground" data-testid="cumulative-ess-empty">
+        No cumulative income data available.
+      </p>
+    )
   }
 
   return (
@@ -32,11 +29,13 @@ export function CumulativeEssChart({ data, currency }: CumulativeEssChartProps) 
             </linearGradient>
           </defs>
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v: number) => `${currencyPrefix(currency)}${(v / 1000).toFixed(0)}k`} />
+          <YAxis
+            tickFormatter={(v: number) => `${currencyPrefix(currency)}${(v / 1000).toFixed(0)}k`}
+          />
           <Tooltip formatter={(v: number) => `${currencyPrefix(currency)}${v.toLocaleString()}`} />
           <Area type="monotone" dataKey="cumulative" stroke="#2563eb" fill="url(#essGradient)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>
-  );
+  )
 }

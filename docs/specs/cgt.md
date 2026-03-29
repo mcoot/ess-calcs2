@@ -51,10 +51,10 @@ Note: The ATO requires shares to be held for **more than** 12 months. Exactly 12
 
 Two different exchange rates are used for each lot:
 
-| Amount | Conversion Date | Rate Used |
-|--------|----------------|-----------|
-| Cost basis | `originalAcquisitionDate` | `audToUsd(originalAcquisitionDate)` |
-| Net proceeds | `saleDate` | `audToUsd(saleDate)` |
+| Amount       | Conversion Date           | Rate Used                           |
+| ------------ | ------------------------- | ----------------------------------- |
+| Cost basis   | `originalAcquisitionDate` | `audToUsd(originalAcquisitionDate)` |
+| Net proceeds | `saleDate`                | `audToUsd(saleDate)`                |
 
 This means currency movements between vesting and sale affect the AUD-denominated gain/loss independently of the share price movement.
 
@@ -63,39 +63,39 @@ This means currency movements between vesting and sale affect the AUD-denominate
 ```typescript
 interface SaleLotCgt {
   // Source data
-  withdrawalRef: string;
-  originatingReleaseRef: string;
-  grantNumber: number;
-  lotNumber: number;
-  saleDate: Date;
-  acquisitionDate: Date;
+  withdrawalRef: string
+  originatingReleaseRef: string
+  grantNumber: number
+  lotNumber: number
+  saleDate: Date
+  acquisitionDate: Date
 
   // USD amounts
-  costBasisUsd: USD;
-  grossProceedsUsd: USD;
-  brokerageUsd: USD;
-  feesUsd: USD;
-  netProceedsUsd: USD;
-  sharesSold: number;
+  costBasisUsd: USD
+  grossProceedsUsd: USD
+  brokerageUsd: USD
+  feesUsd: USD
+  netProceedsUsd: USD
+  sharesSold: number
 
   // AUD conversion
-  acquisitionForexRate: number;
-  acquisitionForexDate: Date;     // Actual date used (may differ due to business day fallback)
-  saleForexRate: number;
-  saleForexDate: Date;
+  acquisitionForexRate: number
+  acquisitionForexDate: Date // Actual date used (may differ due to business day fallback)
+  saleForexRate: number
+  saleForexDate: Date
 
   // AUD amounts
-  costBasisAud: AUD;
-  netProceedsAud: AUD;
-  capitalGainLossAud: AUD;       // Positive = gain, negative = loss
+  costBasisAud: AUD
+  netProceedsAud: AUD
+  capitalGainLossAud: AUD // Positive = gain, negative = loss
 
   // Discount eligibility
-  holdingDays: number;
-  isLongTerm: boolean;            // > 12 months
-  isDiscountEligible: boolean;    // isLongTerm && capitalGainLossAud > 0
+  holdingDays: number
+  isLongTerm: boolean // > 12 months
+  isDiscountEligible: boolean // isLongTerm && capitalGainLossAud > 0
 
   // Financial year
-  financialYear: string;
+  financialYear: string
 }
 ```
 
@@ -154,30 +154,30 @@ If total losses exceed total gains, the excess is displayed as "net capital loss
 
 ```typescript
 interface FyCgtSummary {
-  financialYear: string;
-  lots: SaleLotCgt[];
+  financialYear: string
+  lots: SaleLotCgt[]
 
   // Categorized gains
-  shortTermGains: AUD;           // Sum of gains from lots held ≤ 12 months
-  longTermGains: AUD;            // Sum of gains from lots held > 12 months
-  totalGains: AUD;
+  shortTermGains: AUD // Sum of gains from lots held ≤ 12 months
+  longTermGains: AUD // Sum of gains from lots held > 12 months
+  totalGains: AUD
 
   // Losses
-  shortTermLosses: AUD;          // Sum of losses from short-term lots
-  longTermLosses: AUD;           // Sum of losses from long-term lots
-  totalLosses: AUD;
+  shortTermLosses: AUD // Sum of losses from short-term lots
+  longTermLosses: AUD // Sum of losses from long-term lots
+  totalLosses: AUD
 
   // After loss offsetting
-  shortTermAfterLosses: AUD;
-  longTermAfterLosses: AUD;
+  shortTermAfterLosses: AUD
+  longTermAfterLosses: AUD
 
   // After discount
-  discountAmount: AUD;           // longTermAfterLosses × 0.50
-  discountedLongTerm: AUD;       // longTermAfterLosses - discountAmount
+  discountAmount: AUD // longTermAfterLosses × 0.50
+  discountedLongTerm: AUD // longTermAfterLosses - discountAmount
 
   // Final
-  netCapitalGain: AUD;           // shortTermAfterLosses + discountedLongTerm
-  netCapitalLoss: AUD;           // Excess losses (if any), for display only
+  netCapitalGain: AUD // shortTermAfterLosses + discountedLongTerm
+  netCapitalLoss: AUD // Excess losses (if any), for display only
 }
 ```
 
@@ -192,6 +192,7 @@ The UI displays each year's net position independently, with a note reminding th
 ### Test Case 1: Simple Long-Term Gain
 
 **Input**:
+
 - Sale lot from `WRC81521E07-1EE`, release `RB54549F21`, Grant 9375
 - Sale date: 03-Aug-2021
 - Acquisition date: 18-Feb-2019
@@ -201,6 +202,7 @@ The UI displays each year's net position independently, with a note reminding th
 - `soldWithin30Days = NO`
 
 **Expected**:
+
 - Holding period: ~2.5 years → long-term, discount eligible
 - Net proceeds USD: $4,478.10 - $39.33 - $0.39 = $4,438.38
 - Cost basis USD: $3,147.00
@@ -211,6 +213,7 @@ The UI displays each year's net position independently, with a note reminding th
 ### Test Case 2: Capital Loss
 
 **Input**:
+
 - Sale lot from `WRC9F3CF137-1EE`, release `RB82856F04`, Grant 9375
 - Sale date: 08-Nov-2022
 - Acquisition date: 18-Aug-2021
@@ -220,6 +223,7 @@ The UI displays each year's net position independently, with a note reminding th
 - `soldWithin30Days = NO`
 
 **Expected**:
+
 - Holding period: ~14.7 months → long-term
 - Net proceeds USD: $3,618.00 - $0.00 - $0.13 = $3,617.87
 - Capital loss USD: $3,617.87 - $10,131.90 = -$6,514.03
@@ -240,12 +244,14 @@ All are long-term (held > 12 months). If any short-term gains exist in FY 2022-2
 ### Test Case 4: Short-Term Sale (Within 30 Days, Excluded from CGT)
 
 **Input**:
+
 - Sale lot from `WRCA4924415-1EE`, release `RBA3C416E9`, Grant 45088
 - Sale date: 24-Feb-2023
 - Acquisition date: 13-Feb-2023
 - `soldWithin30Days = YES`
 
 **Expected**:
+
 - This lot is **excluded from CGT** entirely
 - It is handled by the ESS income calculation instead
 - CGT service should skip/filter this lot
@@ -253,6 +259,7 @@ All are long-term (held > 12 months). If any short-term gains exist in FY 2022-2
 ### Test Case 5: Short-Term Sale (Outside 30 Days)
 
 A lot held less than 12 months but sold after 30 days would be:
+
 - Subject to CGT (not excluded by 30-day rule)
 - Not eligible for 50% discount
 - Gains are "short-term gains" in the FY aggregation
@@ -269,7 +276,7 @@ A lot held less than 12 months but sold after 30 days would be:
 
 ## Edge Cases
 
-- **Same-day sale outside 30 days**: Possible if acquisition date differs from the release date of the *current* vest event (shares from an older vest). Hold period can still be > 12 months.
+- **Same-day sale outside 30 days**: Possible if acquisition date differs from the release date of the _current_ vest event (shares from an older vest). Hold period can still be > 12 months.
 - **Tiny brokerage amounts**: Some lots show $0.00 brokerage and very small fees ($0.01-$0.13). These must still be deducted.
 - **Multiple lots in one withdrawal**: A single `withdrawalReferenceNumber` can produce many `SaleLot` rows with different acquisition dates and holding periods. Each is calculated independently.
 - **Forex rate difference**: The AUD gain/loss can differ significantly from the USD gain/loss due to AUD/USD movement between acquisition and sale dates.

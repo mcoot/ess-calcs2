@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useAppContext } from "@/components/providers/app-provider";
-import { FileDropZone } from "@/components/import/file-drop-zone";
-import { ImportResults } from "@/components/import/import-results";
-import { ReconciliationWarnings } from "@/components/import/reconciliation-warnings";
-import { DataSummary } from "@/components/import/data-summary";
-import { importCsv, type ImportResult } from "@/services/csv-import.service";
+import { useEffect, useState } from 'react'
+import { useAppContext } from '@/components/providers/app-provider'
+import { FileDropZone } from '@/components/import/file-drop-zone'
+import { ImportResults } from '@/components/import/import-results'
+import { ReconciliationWarnings } from '@/components/import/reconciliation-warnings'
+import { DataSummary } from '@/components/import/data-summary'
+import { importCsv, type ImportResult } from '@/services/csv-import.service'
 import {
   createReconciliationService,
   type ReconciliationWarning,
-} from "@/services/reconciliation.service";
+} from '@/services/reconciliation.service'
 
-const reconciliation = createReconciliationService();
+const reconciliation = createReconciliationService()
 
 export default function ImportPage() {
-  const { store, refreshData, refreshKey } = useAppContext();
-  const [result, setResult] = useState<ImportResult | null>(null);
-  const [warnings, setWarnings] = useState<ReconciliationWarning[]>([]);
+  const { store, refreshData, refreshKey } = useAppContext()
+  const [result, setResult] = useState<ImportResult | null>(null)
+  const [warnings, setWarnings] = useState<ReconciliationWarning[]>([])
 
   useEffect(() => {
     async function runReconciliation() {
@@ -25,19 +25,19 @@ export default function ImportPage() {
         store.getAwards(),
         store.getRsuReleases(),
         store.getSaleLots(),
-      ]);
-      setWarnings(reconciliation.validate(awards, releases, saleLots));
+      ])
+      setWarnings(reconciliation.validate(awards, releases, saleLots))
     }
-    runReconciliation();
-  }, [store, refreshKey]);
+    runReconciliation()
+  }, [store, refreshKey])
 
   async function handleFiles(files: File[]) {
     for (const file of files) {
-      const text = await file.text();
-      const r = await importCsv(store, text);
-      setResult(r);
+      const text = await file.text()
+      const r = await importCsv(store, text)
+      setResult(r)
     }
-    refreshData();
+    refreshData()
   }
 
   return (
@@ -48,5 +48,5 @@ export default function ImportPage() {
       <ReconciliationWarnings warnings={warnings} />
       <DataSummary />
     </main>
-  );
+  )
 }

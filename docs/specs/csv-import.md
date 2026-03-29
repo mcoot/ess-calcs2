@@ -11,11 +11,13 @@ Parse the four CSV file types exported from Morgan Stanley Shareworks into valid
 **Detection**: Row 1 is the literal text `Award Summary`. Row 2 contains headers.
 
 **Header row (row 2)**:
+
 ```
 As Of Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Conversion Price,,Granted,Previously Distributed,,,Not Available For Distribution,,
 ```
 
 Row 3 is a sub-header row providing column labels for the multi-column groups:
+
 ```
 ,,,,,,,,,Shares,Benefit Received,,Shares,Estimated Benefit,
 ```
@@ -24,23 +26,23 @@ Row 3 is a sub-header row providing column labels for the multi-column groups:
 
 **Column mapping**:
 
-| Column | Field | Type | Notes |
-|--------|-------|------|-------|
-| A | As Of Date | Date | Report generation date, same for all rows |
-| B | Grant Date | Date | When RSUs were granted |
-| C | Grant Number | number | Unique grant identifier |
-| D | Grant Type | string | Always "Share Units (RSU)" |
-| E | Grant Name | string | Descriptive name |
-| F | Grant Reason | string | New Hire, Refresh, Ongoing, Supplemental - Stub |
-| G | Conversion Price | USD | Dollar-prefixed, e.g. `$52.6476` |
-| H | (Currency) | string | Always "USD" |
-| I | Granted (Shares) | number | May have comma separators |
-| J | Previously Distributed (Shares) | number | |
-| K | Benefit Received | USD | Dollar-prefixed with comma separators |
-| L | (Currency) | string | Always "USD" |
-| M | Not Available For Distribution (Shares) | number | |
-| N | Estimated Benefit | USD | |
-| O | (Currency) | string | Always "USD" |
+| Column | Field                                   | Type   | Notes                                           |
+| ------ | --------------------------------------- | ------ | ----------------------------------------------- |
+| A      | As Of Date                              | Date   | Report generation date, same for all rows       |
+| B      | Grant Date                              | Date   | When RSUs were granted                          |
+| C      | Grant Number                            | number | Unique grant identifier                         |
+| D      | Grant Type                              | string | Always "Share Units (RSU)"                      |
+| E      | Grant Name                              | string | Descriptive name                                |
+| F      | Grant Reason                            | string | New Hire, Refresh, Ongoing, Supplemental - Stub |
+| G      | Conversion Price                        | USD    | Dollar-prefixed, e.g. `$52.6476`                |
+| H      | (Currency)                              | string | Always "USD"                                    |
+| I      | Granted (Shares)                        | number | May have comma separators                       |
+| J      | Previously Distributed (Shares)         | number |                                                 |
+| K      | Benefit Received                        | USD    | Dollar-prefixed with comma separators           |
+| L      | (Currency)                              | string | Always "USD"                                    |
+| M      | Not Available For Distribution (Shares) | number |                                                 |
+| N      | Estimated Benefit                       | USD    |                                                 |
+| O      | (Currency)                              | string | Always "USD"                                    |
 
 **Total row**: Last data row has empty columns A-H and contains totals. Detected by empty Grant Number.
 
@@ -51,6 +53,7 @@ Row 3 is a sub-header row providing column labels for the multi-column groups:
 **Detection**: Row 1 is `Full Vesting Schedule`. Row 2 contains headers.
 
 **Header row (row 2)**:
+
 ```
 As Of Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Vest Date,Shares
 ```
@@ -58,6 +61,7 @@ As Of Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Vest Date,
 **Section breaks**: Lines matching `Grant Number: XXXXX` appear before each grant's entries. These are informational separators.
 
 **Total rows**: Rows where only the last column (Shares) has a value. These appear:
+
 - After each grant's entries (per-grant total)
 - At the very end (grand total)
 
@@ -65,16 +69,16 @@ As Of Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Vest Date,
 
 **Column mapping**:
 
-| Column | Field | Type | Notes |
-|--------|-------|------|-------|
-| A | As Of Date | Date | |
-| B | Grant Date | Date | |
-| C | Grant Number | number | |
-| D | Grant Type | string | |
-| E | Grant Name | string | |
-| F | Grant Reason | string | |
-| G | Vest Date | Date | The scheduled vest date |
-| H | Shares | number | Shares vesting on this date |
+| Column | Field        | Type   | Notes                       |
+| ------ | ------------ | ------ | --------------------------- |
+| A      | As Of Date   | Date   |                             |
+| B      | Grant Date   | Date   |                             |
+| C      | Grant Number | number |                             |
+| D      | Grant Type   | string |                             |
+| E      | Grant Name   | string |                             |
+| F      | Grant Reason | string |                             |
+| G      | Vest Date    | Date   | The scheduled vest date     |
+| H      | Shares       | number | Shares vesting on this date |
 
 **Produces**: `VestingScheduleEntry[]`
 
@@ -83,6 +87,7 @@ As Of Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Vest Date,
 **Detection**: Row 1 is `RSU Releases`. Row 2 contains headers.
 
 **Header row (row 2)**:
+
 ```
 Period Start Date,Period End Date,Grant Date,Grant Number,Grant Type,Grant Name,Grant Reason,Release Date,Shares Vested,Shares Sold-To-Cover,Shares Held,Value,,Fair Market Value Per Share,,Sale Date (Sell-To-Cover only),Sale Price Per Share,,Sale Proceeds,,Sell-To-Cover Amount,,Release Reference Number
 ```
@@ -91,31 +96,31 @@ Period Start Date,Period End Date,Grant Date,Grant Number,Grant Type,Grant Name,
 
 **Column mapping**:
 
-| Column | Field | Type | Notes |
-|--------|-------|------|-------|
-| A | Period Start Date | Date | Report filter start |
-| B | Period End Date | Date | Report filter end |
-| C | Grant Date | Date | |
-| D | Grant Number | number | |
-| E | Grant Type | string | |
-| F | Grant Name | string | |
-| G | Grant Reason | string | |
-| H | Release Date | Date | Actual vesting date |
-| I | Shares Vested | number | |
-| J | Shares Sold-To-Cover | number | |
-| K | Shares Held | number | |
-| L | Value | USD | Total value at vesting |
-| M | (Currency) | string | |
-| N | Fair Market Value Per Share | USD | |
-| O | (Currency) | string | |
-| P | Sale Date (Sell-To-Cover only) | Date? | Optional |
-| Q | Sale Price Per Share | USD? | Optional |
-| R | (Currency) | string | |
-| S | Sale Proceeds | USD? | Optional |
-| T | (Currency) | string | |
-| U | Sell-To-Cover Amount | USD | |
-| V | (Currency) | string | |
-| W | Release Reference Number | string | e.g. "RB6538C8B1" |
+| Column | Field                          | Type   | Notes                  |
+| ------ | ------------------------------ | ------ | ---------------------- |
+| A      | Period Start Date              | Date   | Report filter start    |
+| B      | Period End Date                | Date   | Report filter end      |
+| C      | Grant Date                     | Date   |                        |
+| D      | Grant Number                   | number |                        |
+| E      | Grant Type                     | string |                        |
+| F      | Grant Name                     | string |                        |
+| G      | Grant Reason                   | string |                        |
+| H      | Release Date                   | Date   | Actual vesting date    |
+| I      | Shares Vested                  | number |                        |
+| J      | Shares Sold-To-Cover           | number |                        |
+| K      | Shares Held                    | number |                        |
+| L      | Value                          | USD    | Total value at vesting |
+| M      | (Currency)                     | string |                        |
+| N      | Fair Market Value Per Share    | USD    |                        |
+| O      | (Currency)                     | string |                        |
+| P      | Sale Date (Sell-To-Cover only) | Date?  | Optional               |
+| Q      | Sale Price Per Share           | USD?   | Optional               |
+| R      | (Currency)                     | string |                        |
+| S      | Sale Proceeds                  | USD?   | Optional               |
+| T      | (Currency)                     | string |                        |
+| U      | Sell-To-Cover Amount           | USD    |                        |
+| V      | (Currency)                     | string |                        |
+| W      | Release Reference Number       | string | e.g. "RB6538C8B1"      |
 
 **Produces**: `RsuRelease[]`
 
@@ -124,6 +129,7 @@ Period Start Date,Period End Date,Grant Date,Grant Number,Grant Type,Grant Name,
 **Detection**: Row 1 is `Sales - Long Shares`. Row 2 contains headers.
 
 **Header row (row 2)**:
+
 ```
 Period Start Date,Period End Date,Withdrawal Reference Number,Originating Release Reference Number,Employee Grant Number,Grant Name,Lot Number,Sale Type,Sale Date,Original Acquisition Date,Sold Within 30 Days of Vest,Original Cost Basis Per Share,,Original Cost Basis,,Shares Sold,Sale Proceeds,,Sale Price Per Share,,Brokerage Commission,,Supplemental Transaction Fee,
 ```
@@ -132,32 +138,32 @@ Period Start Date,Period End Date,Withdrawal Reference Number,Originating Releas
 
 **Column mapping**:
 
-| Column | Field | Type | Notes |
-|--------|-------|------|-------|
-| A | Period Start Date | Date | |
-| B | Period End Date | Date | |
-| C | Withdrawal Reference Number | string | e.g. "WRC6476B1C8-1EE" |
-| D | Originating Release Reference Number | string | Links to RsuRelease |
-| E | Employee Grant Number | number | |
-| F | Grant Name | string | |
-| G | Lot Number | number | |
-| H | Sale Type | string | "Long Shares" |
-| I | Sale Date | Date | |
-| J | Original Acquisition Date | Date | Vesting date |
-| K | Sold Within 30 Days of Vest | boolean | "YES" / "NO" |
-| L | Original Cost Basis Per Share | USD | |
-| M | (Currency) | string | |
-| N | Original Cost Basis | USD | |
-| O | (Currency) | string | |
-| P | Shares Sold | number | |
-| Q | Sale Proceeds | USD | |
-| R | (Currency) | string | |
-| S | Sale Price Per Share | USD | |
-| T | (Currency) | string | |
-| U | Brokerage Commission | USD | |
-| V | (Currency) | string | |
-| W | Supplemental Transaction Fee | USD | |
-| X | (Currency) | string | |
+| Column | Field                                | Type    | Notes                  |
+| ------ | ------------------------------------ | ------- | ---------------------- |
+| A      | Period Start Date                    | Date    |                        |
+| B      | Period End Date                      | Date    |                        |
+| C      | Withdrawal Reference Number          | string  | e.g. "WRC6476B1C8-1EE" |
+| D      | Originating Release Reference Number | string  | Links to RsuRelease    |
+| E      | Employee Grant Number                | number  |                        |
+| F      | Grant Name                           | string  |                        |
+| G      | Lot Number                           | number  |                        |
+| H      | Sale Type                            | string  | "Long Shares"          |
+| I      | Sale Date                            | Date    |                        |
+| J      | Original Acquisition Date            | Date    | Vesting date           |
+| K      | Sold Within 30 Days of Vest          | boolean | "YES" / "NO"           |
+| L      | Original Cost Basis Per Share        | USD     |                        |
+| M      | (Currency)                           | string  |                        |
+| N      | Original Cost Basis                  | USD     |                        |
+| O      | (Currency)                           | string  |                        |
+| P      | Shares Sold                          | number  |                        |
+| Q      | Sale Proceeds                        | USD     |                        |
+| R      | (Currency)                           | string  |                        |
+| S      | Sale Price Per Share                 | USD     |                        |
+| T      | (Currency)                           | string  |                        |
+| U      | Brokerage Commission                 | USD     |                        |
+| V      | (Currency)                           | string  |                        |
+| W      | Supplemental Transaction Fee         | USD     |                        |
+| X      | (Currency)                           | string  |                        |
 
 **Produces**: `SaleLot[]`
 
@@ -166,6 +172,7 @@ Period Start Date,Period End Date,Withdrawal Reference Number,Originating Releas
 ### Layout
 
 Single import page with:
+
 - Drag-and-drop zone accepting `.csv` files
 - File picker button as fallback
 - Support for multiple files in one drop
@@ -174,6 +181,7 @@ Single import page with:
 ### Auto-Detection
 
 On file upload:
+
 1. Read the first line of the file
 2. Match against known title strings: `Award Summary`, `Full Vesting Schedule`, `RSU Releases`, `Sales - Long Shares`
 3. If no match, show an error identifying the unrecognized file
@@ -197,12 +205,14 @@ File selected/dropped
 All dates are in `DD-Mon-YYYY` format (e.g., `15-Mar-2026`, `18-Feb-2020`).
 
 Parser must handle:
+
 - 3-letter month abbreviations: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
 - Consistent conversion to `Date` objects (midnight UTC)
 
 ### Money Parsing
 
 Values are dollar-prefixed with optional comma thousand separators and optional quotes:
+
 - `$52.6476` → 52.6476
 - `"$91,148.86"` → 91148.86
 - `$0.00` → 0
@@ -212,6 +222,7 @@ Strip `$`, strip commas, parse as float.
 ### Number Parsing
 
 Share counts may have comma separators and quotes:
+
 - `"5,824"` → 5824
 - `475` → 475
 
@@ -222,6 +233,7 @@ Share counts may have comma separators and quotes:
 ### Row Filtering
 
 Skip:
+
 - Title row (row 1)
 - Header row(s) (row 2, and row 3 for Award Summary)
 - Section break rows (e.g., `Grant Number: XXXXX` in Vesting Schedule)
@@ -242,6 +254,7 @@ Skip:
 ### Referential Integrity (post-parse)
 
 After all files are imported, check:
+
 - Every `SaleLot.originatingReleaseRef` should match an `RsuRelease.releaseReferenceNumber`
 - Every `SaleLot.grantNumber` should match an `Award.grantNumber`
 - Every `VestingScheduleEntry.grantNumber` should match an `Award.grantNumber`
@@ -262,23 +275,23 @@ Display as warnings in the import results UI.
 
 ```typescript
 interface ParseResult<T> {
-  success: boolean;
-  data: T[];                    // Successfully parsed rows
-  errors: ParseError[];         // Per-row errors
-  warnings: string[];           // Reconciliation warnings
+  success: boolean
+  data: T[] // Successfully parsed rows
+  errors: ParseError[] // Per-row errors
+  warnings: string[] // Reconciliation warnings
   summary: {
-    totalRows: number;
-    parsedRows: number;
-    skippedRows: number;        // Headers, totals, section breaks
-    errorRows: number;
-  };
+    totalRows: number
+    parsedRows: number
+    skippedRows: number // Headers, totals, section breaks
+    errorRows: number
+  }
 }
 
 interface ParseError {
-  row: number;                  // 1-based row number in CSV
-  field: string;                // Column name
-  value: string;                // Raw value that failed
-  message: string;              // Human-readable error
+  row: number // 1-based row number in CSV
+  field: string // Column name
+  value: string // Raw value that failed
+  message: string // Human-readable error
 }
 ```
 

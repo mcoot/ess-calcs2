@@ -1,29 +1,29 @@
-"use client";
+'use client'
 
-import { useAppContext } from "@/components/providers/app-provider";
-import { Button } from "@/components/ui/button";
+import { useAppContext } from '@/components/providers/app-provider'
+import { Button } from '@/components/ui/button'
 
 export function CurrencyToggle() {
-  const { displayCurrency, setDisplayCurrency } = useAppContext();
+  const { displayCurrency, setDisplayCurrency } = useAppContext()
 
   return (
     <div className="flex gap-1">
       <Button
-        variant={displayCurrency === "AUD" ? "default" : "outline"}
+        variant={displayCurrency === 'AUD' ? 'default' : 'outline'}
         size="sm"
-        aria-pressed={displayCurrency === "AUD"}
-        onClick={() => setDisplayCurrency("AUD")}
+        aria-pressed={displayCurrency === 'AUD'}
+        onClick={() => setDisplayCurrency('AUD')}
       >
         AUD
       </Button>
       <Button
-        variant={displayCurrency === "USD" ? "default" : "outline"}
+        variant={displayCurrency === 'USD' ? 'default' : 'outline'}
         size="sm"
-        aria-pressed={displayCurrency === "USD"}
-        onClick={() => setDisplayCurrency("USD")}
+        aria-pressed={displayCurrency === 'USD'}
+        onClick={() => setDisplayCurrency('USD')}
       >
         USD
       </Button>
     </div>
-  );
+  )
 }

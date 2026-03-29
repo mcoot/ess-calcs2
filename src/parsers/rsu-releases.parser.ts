@@ -1,22 +1,22 @@
-import type { RsuRelease } from "@/types";
-import { RsuReleaseSchema } from "@/types";
-import type { ParseResult } from "./csv-utils";
-import { splitCsvRow, splitCsvLines, parseMoney, parseShares, wrapParse } from "./csv-utils";
-import { parseDDMonYYYY } from "@/lib/dates";
+import type { RsuRelease } from '@/types'
+import { RsuReleaseSchema } from '@/types'
+import type { ParseResult } from './csv-utils'
+import { splitCsvRow, splitCsvLines, parseMoney, parseShares, wrapParse } from './csv-utils'
+import { parseDDMonYYYY } from '@/lib/dates'
 
 export function parseRsuReleases(csv: string): ParseResult<RsuRelease> {
   return wrapParse(() => {
-    const lines = splitCsvLines(csv, 2);
-    const releases: RsuRelease[] = [];
+    const lines = splitCsvLines(csv, 2)
+    const releases: RsuRelease[] = []
 
     for (const line of lines) {
-      const cols = splitCsvRow(line);
-      const grantNumberRaw = cols[3]?.trim();
-      if (!grantNumberRaw) continue;
+      const cols = splitCsvRow(line)
+      const grantNumberRaw = cols[3]?.trim()
+      if (!grantNumberRaw) continue
 
-      const saleDateRaw = cols[15]?.trim();
-      const salePriceRaw = cols[16]?.trim();
-      const saleProceedsRaw = cols[18]?.trim();
+      const saleDateRaw = cols[15]?.trim()
+      const salePriceRaw = cols[16]?.trim()
+      const saleProceedsRaw = cols[18]?.trim()
 
       releases.push(
         RsuReleaseSchema.parse({
@@ -35,10 +35,10 @@ export function parseRsuReleases(csv: string): ParseResult<RsuRelease> {
           saleProceeds: saleProceedsRaw ? parseMoney(saleProceedsRaw) : undefined,
           sellToCoverAmount: parseMoney(cols[20]),
           releaseReferenceNumber: cols[22].trim(),
-        })
-      );
+        }),
+      )
     }
 
-    return releases;
-  });
+    return releases
+  })
 }

@@ -28,46 +28,46 @@ On startup, `IndexedDBStore` loads all data into an in-memory model. All reads o
 ```typescript
 interface DataStore {
   // Awards
-  getAwards(): Award[];
-  setAwards(awards: Award[]): Promise<void>;
+  getAwards(): Award[]
+  setAwards(awards: Award[]): Promise<void>
 
   // Vesting Schedule
-  getVestingSchedule(): VestingScheduleEntry[];
-  setVestingSchedule(entries: VestingScheduleEntry[]): Promise<void>;
+  getVestingSchedule(): VestingScheduleEntry[]
+  setVestingSchedule(entries: VestingScheduleEntry[]): Promise<void>
 
   // RSU Releases
-  getReleases(): RsuRelease[];
-  setReleases(releases: RsuRelease[]): Promise<void>;
+  getReleases(): RsuRelease[]
+  setReleases(releases: RsuRelease[]): Promise<void>
 
   // Sale Lots
-  getSaleLots(): SaleLot[];
-  setSaleLots(lots: SaleLot[]): Promise<void>;
+  getSaleLots(): SaleLot[]
+  setSaleLots(lots: SaleLot[]): Promise<void>
 
   // Forex Rates
-  getForexRates(): ForexRate[];
-  setForexRates(rates: ForexRate[]): Promise<void>;
+  getForexRates(): ForexRate[]
+  setForexRates(rates: ForexRate[]): Promise<void>
 
   // Config
-  getConfig<K extends keyof AppConfig>(key: K): AppConfig[K] | undefined;
-  setConfig<K extends keyof AppConfig>(key: K, value: AppConfig[K]): Promise<void>;
+  getConfig<K extends keyof AppConfig>(key: K): AppConfig[K] | undefined
+  setConfig<K extends keyof AppConfig>(key: K, value: AppConfig[K]): Promise<void>
 
   // Bulk operations
-  clearAll(): Promise<void>;
-  clearByType(type: DataType): Promise<void>;
-  exportAll(): Promise<DataExport>;
-  importAll(data: DataExport): Promise<void>;
+  clearAll(): Promise<void>
+  clearByType(type: DataType): Promise<void>
+  exportAll(): Promise<DataExport>
+  importAll(data: DataExport): Promise<void>
 
   // Lifecycle
-  initialize(): Promise<void>;   // Load IndexedDB into memory
-  isInitialized(): boolean;
+  initialize(): Promise<void> // Load IndexedDB into memory
+  isInitialized(): boolean
 }
 
-type DataType = 'awards' | 'vestingSchedule' | 'releases' | 'saleLots' | 'forexRates';
+type DataType = 'awards' | 'vestingSchedule' | 'releases' | 'saleLots' | 'forexRates'
 
 interface AppConfig {
-  displayCurrency: 'USD' | 'AUD';
-  lastImportDate?: string;        // ISO date string
-  importedFileTypes?: DataType[]; // Which CSV types have been imported
+  displayCurrency: 'USD' | 'AUD'
+  lastImportDate?: string // ISO date string
+  importedFileTypes?: DataType[] // Which CSV types have been imported
 }
 ```
 
@@ -90,14 +90,14 @@ interface AppConfig {
 
 ### Object Stores
 
-| Store Name | Key Path | Indexes | Contents |
-|------------|----------|---------|----------|
-| `awards` | `grantNumber` | `grantDate` | `Award[]` |
-| `vestingSchedule` | auto-increment | `grantNumber`, `vestDate` | `VestingScheduleEntry[]` |
-| `releases` | `releaseReferenceNumber` | `grantNumber`, `releaseDate` | `RsuRelease[]` |
-| `saleLots` | auto-increment | `withdrawalReferenceNumber`, `originatingReleaseRef`, `grantNumber`, `saleDate` | `SaleLot[]` |
-| `forexRates` | `date` | (none) | `ForexRate[]` |
-| `config` | `key` | (none) | `{ key: string, value: any }` |
+| Store Name        | Key Path                 | Indexes                                                                         | Contents                      |
+| ----------------- | ------------------------ | ------------------------------------------------------------------------------- | ----------------------------- |
+| `awards`          | `grantNumber`            | `grantDate`                                                                     | `Award[]`                     |
+| `vestingSchedule` | auto-increment           | `grantNumber`, `vestDate`                                                       | `VestingScheduleEntry[]`      |
+| `releases`        | `releaseReferenceNumber` | `grantNumber`, `releaseDate`                                                    | `RsuRelease[]`                |
+| `saleLots`        | auto-increment           | `withdrawalReferenceNumber`, `originatingReleaseRef`, `grantNumber`, `saleDate` | `SaleLot[]`                   |
+| `forexRates`      | `date`                   | (none)                                                                          | `ForexRate[]`                 |
+| `config`          | `key`                    | (none)                                                                          | `{ key: string, value: any }` |
 
 ### Date Storage
 
@@ -109,13 +109,13 @@ For unit tests - a synchronous, state-based implementation:
 
 ```typescript
 class InMemoryFakeStore implements DataStore {
-  private awards: Award[] = [];
-  private vestingSchedule: VestingScheduleEntry[] = [];
-  private releases: RsuRelease[] = [];
-  private saleLots: SaleLot[] = [];
-  private forexRates: ForexRate[] = [];
-  private config: Partial<AppConfig> = {};
-  private initialized = false;
+  private awards: Award[] = []
+  private vestingSchedule: VestingScheduleEntry[] = []
+  private releases: RsuRelease[] = []
+  private saleLots: SaleLot[] = []
+  private forexRates: ForexRate[] = []
+  private config: Partial<AppConfig> = {}
+  private initialized = false
 
   // All get* methods return copies of internal arrays
   // All set* methods resolve immediately (no actual persistence)
@@ -124,6 +124,7 @@ class InMemoryFakeStore implements DataStore {
 ```
 
 This allows tests to:
+
 - Pre-populate with known data
 - Assert against store state after operations
 - Run without browser APIs (no IndexedDB dependency)
@@ -134,14 +135,14 @@ This allows tests to:
 
 ```typescript
 interface DataExport {
-  version: 1;
-  exportedAt: string;           // ISO timestamp
-  awards: Award[];
-  vestingSchedule: VestingScheduleEntry[];
-  releases: RsuRelease[];
-  saleLots: SaleLot[];
+  version: 1
+  exportedAt: string // ISO timestamp
+  awards: Award[]
+  vestingSchedule: VestingScheduleEntry[]
+  releases: RsuRelease[]
+  saleLots: SaleLot[]
   // Forex rates are NOT included (bundled with app)
-  config: Partial<AppConfig>;
+  config: Partial<AppConfig>
 }
 ```
 
@@ -191,6 +192,7 @@ App mount
 ```
 
 If IndexedDB is unavailable (private browsing in some browsers):
+
 - Fall back to in-memory only mode
 - Warn user that data won't persist between sessions
 - All functionality still works within the session

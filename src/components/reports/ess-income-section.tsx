@@ -1,30 +1,35 @@
-"use client";
+'use client'
 
-import { Fragment, useState } from "react";
-import type { AUD } from "@/types";
-import type { EssIncomeReportRow } from "@/services/report.service";
-import { formatCurrency } from "@/lib/money";
-import { formatDate } from "@/lib/format";
-import { ChevronRight, ChevronDown } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Fragment, useState } from 'react'
+import type { AUD } from '@/types'
+import type { EssIncomeReportRow } from '@/services/report.service'
+import { formatCurrency } from '@/lib/money'
+import { formatDate } from '@/lib/format'
+import { ChevronRight, ChevronDown } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Table, TableBody, TableCell, TableFooter, TableHead,
-  TableHeader, TableRow,
-} from "@/components/ui/table";
-import { EssIncomeDrilldown } from "./ess-income-drilldown";
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { EssIncomeDrilldown } from './ess-income-drilldown'
 
 interface EssIncomeSectionProps {
-  rows: EssIncomeReportRow[];
-  totalAud: AUD;
-  fy: string;
+  rows: EssIncomeReportRow[]
+  totalAud: AUD
+  fy: string
 }
 
 export function EssIncomeSection({ rows, totalAud, fy }: EssIncomeSectionProps) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   function toggleRow(i: number) {
-    setExpandedIndex(expandedIndex === i ? null : i);
+    setExpandedIndex(expandedIndex === i ? null : i)
   }
 
   return (
@@ -58,28 +63,27 @@ export function EssIncomeSection({ rows, totalAud, fy }: EssIncomeSectionProps) 
             <TableBody>
               {rows.map((row, i) => (
                 <Fragment key={`${row.releaseRef}-${i}`}>
-                  <TableRow
-                    className="cursor-pointer"
-                    onClick={() => toggleRow(i)}
-                  >
+                  <TableRow className="cursor-pointer" onClick={() => toggleRow(i)}>
                     <TableCell className="w-8 px-2">
-                      {expandedIndex === i
-                        ? <ChevronDown className="h-4 w-4" />
-                        : <ChevronRight className="h-4 w-4" />}
+                      {expandedIndex === i ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
                     </TableCell>
                     <TableCell>{formatDate(row.date)}</TableCell>
                     <TableCell>{row.grantNumber}</TableCell>
                     <TableCell>{row.releaseRef}</TableCell>
                     <TableCell className="text-right">{row.shares}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(row.fmvPerShareUsd as number, "USD")}
+                      {formatCurrency(row.fmvPerShareUsd as number, 'USD')}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(row.grossValueUsd as number, "USD")}
+                      {formatCurrency(row.grossValueUsd as number, 'USD')}
                     </TableCell>
                     <TableCell className="text-right">{row.exchangeRate.toFixed(4)}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(row.essIncomeAud as number, "AUD")}
+                      {formatCurrency(row.essIncomeAud as number, 'AUD')}
                     </TableCell>
                     <TableCell>
                       {row.is30DayRule && <Badge variant="secondary">30-day</Badge>}
@@ -98,9 +102,11 @@ export function EssIncomeSection({ rows, totalAud, fy }: EssIncomeSectionProps) 
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={8} className="font-semibold">Total ESS Income</TableCell>
+                <TableCell colSpan={8} className="font-semibold">
+                  Total ESS Income
+                </TableCell>
                 <TableCell className="text-right font-semibold">
-                  {formatCurrency(totalAud as number, "AUD")}
+                  {formatCurrency(totalAud as number, 'AUD')}
                 </TableCell>
                 <TableCell colSpan={2} />
               </TableRow>
@@ -109,5 +115,5 @@ export function EssIncomeSection({ rows, totalAud, fy }: EssIncomeSectionProps) 
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

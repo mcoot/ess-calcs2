@@ -20,29 +20,29 @@ Reports are generated per financial year. The user selects the FY from a dropdow
 
 #### Summary
 
-| Field | Value |
-|-------|-------|
-| Financial Year | e.g. "2024-25" |
+| Field                    | Value                            |
+| ------------------------ | -------------------------------- |
+| Financial Year           | e.g. "2024-25"                   |
 | Total ESS Discount (AUD) | Sum of all ESS income for the FY |
-| Tax Return Item | "Item 12, Label F" |
+| Tax Return Item          | "Item 12, Label F"               |
 
 #### Detail Rows
 
 One row per ESS income event (per release, or per 30-day lot):
 
-| Column | Description |
-|--------|-------------|
-| Date | Taxing point date (vest date or sale date for 30-day) |
-| Grant | Grant number and name |
-| Release Ref | Release reference number |
-| Shares | Number of shares |
-| FMV/Share (USD) | Fair market value at taxing point |
-| Gross Value (USD) | Total USD value |
-| Exchange Rate | AUD/USD rate used |
-| Rate Date | Actual date the rate was sourced from |
-| ESS Income (AUD) | Converted AUD amount |
-| 30-Day Rule | "Yes" or "No" |
-| Notes | e.g., "Sold 24-Feb-2023, 11 days after vest" |
+| Column            | Description                                           |
+| ----------------- | ----------------------------------------------------- |
+| Date              | Taxing point date (vest date or sale date for 30-day) |
+| Grant             | Grant number and name                                 |
+| Release Ref       | Release reference number                              |
+| Shares            | Number of shares                                      |
+| FMV/Share (USD)   | Fair market value at taxing point                     |
+| Gross Value (USD) | Total USD value                                       |
+| Exchange Rate     | AUD/USD rate used                                     |
+| Rate Date         | Actual date the rate was sourced from                 |
+| ESS Income (AUD)  | Converted AUD amount                                  |
+| 30-Day Rule       | "Yes" or "No"                                         |
+| Notes             | e.g., "Sold 24-Feb-2023, 11 days after vest"          |
 
 #### Subtotals
 
@@ -52,6 +52,7 @@ One row per ESS income event (per release, or per 30-day lot):
 ### Section 2: CGT Schedule (Item 18, Labels H+A)
 
 **ATO Context**: Capital gains are reported at Item 18 ("Capital gains") on the supplementary tax return:
+
 - Label H: "Total current year capital gains"
 - Label A: "Net capital gain"
 
@@ -59,11 +60,11 @@ One row per ESS income event (per release, or per 30-day lot):
 
 #### Summary
 
-| Field | Value |
-|-------|-------|
-| Financial Year | e.g. "2024-25" |
-| Total Current Year Capital Gains (AUD) | Label H value |
-| Net Capital Gain (AUD) | Label A value (after losses and discount) |
+| Field                                  | Value                                     |
+| -------------------------------------- | ----------------------------------------- |
+| Financial Year                         | e.g. "2024-25"                            |
+| Total Current Year Capital Gains (AUD) | Label H value                             |
+| Net Capital Gain (AUD)                 | Label A value (after losses and discount) |
 
 #### Gain/Loss Calculation Walkthrough
 
@@ -83,6 +84,7 @@ Net capital gain (Label A):        A$X,XXX.XX
 ```
 
 If there is a net capital loss:
+
 ```
 Net capital loss:                  A$X,XXX.XX
 (Carry forward to future years - not automatically applied)
@@ -92,20 +94,20 @@ Net capital loss:                  A$X,XXX.XX
 
 One row per `SaleLot` (excluding 30-day lots):
 
-| Column | Description |
-|--------|-------------|
-| Sale Date | Date shares were sold |
-| Acquisition Date | Original vesting date |
-| Grant | Grant number and name |
-| Lot | Lot number |
-| Shares | Shares sold |
-| Holding Period | Days held |
-| Discount Eligible | Yes/No |
-| Cost Basis (USD) | |
-| Cost Basis (AUD) | With rate and rate date |
-| Net Proceeds (USD) | After brokerage and fees |
-| Net Proceeds (AUD) | With rate and rate date |
-| Capital Gain/Loss (AUD) | |
+| Column                  | Description              |
+| ----------------------- | ------------------------ |
+| Sale Date               | Date shares were sold    |
+| Acquisition Date        | Original vesting date    |
+| Grant                   | Grant number and name    |
+| Lot                     | Lot number               |
+| Shares                  | Shares sold              |
+| Holding Period          | Days held                |
+| Discount Eligible       | Yes/No                   |
+| Cost Basis (USD)        |                          |
+| Cost Basis (AUD)        | With rate and rate date  |
+| Net Proceeds (USD)      | After brokerage and fees |
+| Net Proceeds (AUD)      | With rate and rate date  |
+| Capital Gain/Loss (AUD) |                          |
 
 #### Subtotals
 
@@ -117,16 +119,16 @@ One row per `SaleLot` (excluding 30-day lots):
 
 A cross-reference section showing lots handled under the 30-day rule:
 
-| Column | Description |
-|--------|-------------|
-| Sale Date | When shares were sold |
-| Vest Date | When shares originally vested |
-| Days Held | Days between vest and sale |
-| Grant | Grant number and name |
-| Shares | Number of shares |
-| Sale Proceeds (USD) | |
-| ESS Income (AUD) | Amount reported as income (not CGT) |
-| Note | "Included in ESS Income, excluded from CGT" |
+| Column              | Description                                 |
+| ------------------- | ------------------------------------------- |
+| Sale Date           | When shares were sold                       |
+| Vest Date           | When shares originally vested               |
+| Days Held           | Days between vest and sale                  |
+| Grant               | Grant number and name                       |
+| Shares              | Number of shares                            |
+| Sale Proceeds (USD) |                                             |
+| ESS Income (AUD)    | Amount reported as income (not CGT)         |
+| Note                | "Included in ESS Income, excluded from CGT" |
 
 ## Export Formats
 
@@ -151,6 +153,7 @@ A cross-reference section showing lots handled under the 30-day rule:
 ## Custom Date Range
 
 In addition to FY-based reports, support custom date range:
+
 - User specifies start and end dates
 - Report covers events within that range
 - Clearly labelled as "Custom Period" (not a financial year)
@@ -160,6 +163,7 @@ In addition to FY-based reports, support custom date range:
 ## Quarterly Breakdown
 
 Within an FY report, optionally show quarterly subtotals:
+
 - Q1: Jul-Sep
 - Q2: Oct-Dec
 - Q3: Jan-Mar
@@ -181,11 +185,13 @@ User selects FY (or custom range)
 ## Data Requirements
 
 Reports require:
+
 - RSU Releases (for ESS income)
 - Sales - Long Shares (for CGT)
 - Forex rates covering all dates in the report range
 
 If any data is missing:
+
 - Show which CSV types need to be imported
 - For missing forex rates: show which dates lack coverage
 

@@ -1,14 +1,19 @@
-"use client";
+'use client'
 
-import type { Award } from "@/types";
-import { formatCurrency } from "@/lib/money";
-import { formatDate, formatShares } from "@/lib/format";
+import type { Award } from '@/types'
+import { formatCurrency } from '@/lib/money'
+import { formatDate, formatShares } from '@/lib/format'
 import {
-  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
-} from "@/components/ui/table";
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/table'
 
 interface AwardsTableProps {
-  awards: Award[];
+  awards: Award[]
 }
 
 export function AwardsTable({ awards }: AwardsTableProps) {
@@ -17,7 +22,7 @@ export function AwardsTable({ awards }: AwardsTableProps) {
       <p className="text-sm text-muted-foreground">
         No awards loaded. Import an Award Summary CSV to get started.
       </p>
-    );
+    )
   }
 
   return (
@@ -39,15 +44,13 @@ export function AwardsTable({ awards }: AwardsTableProps) {
             <TableCell>{award.grantNumber}</TableCell>
             <TableCell>{award.grantName}</TableCell>
             <TableCell>{award.grantReason}</TableCell>
+            <TableCell className="text-right">{formatShares(award.sharesGranted)}</TableCell>
             <TableCell className="text-right">
-              {formatShares(award.sharesGranted)}
-            </TableCell>
-            <TableCell className="text-right">
-              {formatCurrency(award.conversionPrice as number, "USD")}
+              {formatCurrency(award.conversionPrice as number, 'USD')}
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
-  );
+  )
 }

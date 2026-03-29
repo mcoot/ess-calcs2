@@ -1,18 +1,18 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { useAppContext } from "@/components/providers/app-provider";
+import { useEffect, useState } from 'react'
+import { useAppContext } from '@/components/providers/app-provider'
 
 interface DataCounts {
-  awards: number;
-  vestingSchedule: number;
-  releases: number;
-  saleLots: number;
+  awards: number
+  vestingSchedule: number
+  releases: number
+  saleLots: number
 }
 
 export function DataSummary() {
-  const { store, refreshKey } = useAppContext();
-  const [counts, setCounts] = useState<DataCounts | null>(null);
+  const { store, refreshKey } = useAppContext()
+  const [counts, setCounts] = useState<DataCounts | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -21,30 +21,30 @@ export function DataSummary() {
         store.getVestingSchedule(),
         store.getRsuReleases(),
         store.getSaleLots(),
-      ]);
+      ])
       setCounts({
         awards: awards.length,
         vestingSchedule: vestingSchedule.length,
         releases: releases.length,
         saleLots: saleLots.length,
-      });
+      })
     }
-    load();
-  }, [store, refreshKey]);
+    load()
+  }, [store, refreshKey])
 
-  if (!counts) return null;
+  if (!counts) return null
 
-  const total = counts.awards + counts.vestingSchedule + counts.releases + counts.saleLots;
+  const total = counts.awards + counts.vestingSchedule + counts.releases + counts.saleLots
   if (total === 0) {
-    return <p className="text-sm text-muted-foreground">No data imported yet.</p>;
+    return <p className="text-sm text-muted-foreground">No data imported yet.</p>
   }
 
   const entries = [
-    { label: "Awards", count: counts.awards },
-    { label: "Vesting Schedule", count: counts.vestingSchedule },
-    { label: "Releases", count: counts.releases },
-    { label: "Sale Lots", count: counts.saleLots },
-  ].filter((e) => e.count > 0);
+    { label: 'Awards', count: counts.awards },
+    { label: 'Vesting Schedule', count: counts.vestingSchedule },
+    { label: 'Releases', count: counts.releases },
+    { label: 'Sale Lots', count: counts.saleLots },
+  ].filter((e) => e.count > 0)
 
   return (
     <div className="space-y-1">
@@ -57,5 +57,5 @@ export function DataSummary() {
         ))}
       </ul>
     </div>
-  );
+  )
 }

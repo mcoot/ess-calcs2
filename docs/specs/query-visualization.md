@@ -10,14 +10,14 @@ Provide a dashboard, list views, charts, and drill-down audit trails for explori
 
 The dashboard landing page shows high-level metrics:
 
-| Card | Value | Subtitle |
-|------|-------|----------|
-| Total ESS Income | AUD sum across all years | "Assessable ESS discount income" |
-| Total Capital Gains | AUD net gains (after discount) | "Net capital gains after discount" |
-| Total Capital Losses | AUD total losses | "Unapplied capital losses" |
-| Awards | Count of active grants | "RSU grants" |
-| Shares Vested | Total shares released | "Across all grants" |
-| Shares Sold | Total shares in sale lots | "Long shares sold" |
+| Card                 | Value                          | Subtitle                           |
+| -------------------- | ------------------------------ | ---------------------------------- |
+| Total ESS Income     | AUD sum across all years       | "Assessable ESS discount income"   |
+| Total Capital Gains  | AUD net gains (after discount) | "Net capital gains after discount" |
+| Total Capital Losses | AUD total losses               | "Unapplied capital losses"         |
+| Awards               | Count of active grants         | "RSU grants"                       |
+| Shares Vested        | Total shares released          | "Across all grants"                |
+| Shares Sold          | Total shares in sale lots      | "Long shares sold"                 |
 
 Cards show AUD or USD based on the global toggle. For computed tax values (ESS income, CGT), AUD is always the primary display with USD shown as secondary when in AUD mode.
 
@@ -31,47 +31,47 @@ Cards show AUD or USD based on the global toggle. For computed tax values (ESS i
 
 ### Awards List
 
-| Column | Source |
-|--------|--------|
-| Grant Number | `Award.grantNumber` |
-| Grant Date | `Award.grantDate` |
-| Grant Name | `Award.grantName` |
-| Reason | `Award.grantReason` |
-| Shares Granted | `Award.sharesGranted` |
-| Shares Vested | Sum of releases for this grant |
-| Shares Remaining | Granted - Vested |
+| Column           | Source                         |
+| ---------------- | ------------------------------ |
+| Grant Number     | `Award.grantNumber`            |
+| Grant Date       | `Award.grantDate`              |
+| Grant Name       | `Award.grantName`              |
+| Reason           | `Award.grantReason`            |
+| Shares Granted   | `Award.sharesGranted`          |
+| Shares Vested    | Sum of releases for this grant |
+| Shares Remaining | Granted - Vested               |
 
 Click a row to expand: shows linked vesting schedule entries and releases.
 
 ### Releases List
 
-| Column | Source |
-|--------|--------|
-| Release Date | `RsuRelease.releaseDate` |
-| Grant | `grantNumber` + `grantName` |
-| Shares Vested | `sharesVested` |
-| FMV/Share | `fmvPerShare` |
-| Value | `valueUsd` (with AUD conversion) |
-| ESS Income | Calculated AUD ESS income |
-| 30-Day Lots | Count of linked sale lots with `soldWithin30Days = true` |
-| FY | Financial year |
+| Column        | Source                                                   |
+| ------------- | -------------------------------------------------------- |
+| Release Date  | `RsuRelease.releaseDate`                                 |
+| Grant         | `grantNumber` + `grantName`                              |
+| Shares Vested | `sharesVested`                                           |
+| FMV/Share     | `fmvPerShare`                                            |
+| Value         | `valueUsd` (with AUD conversion)                         |
+| ESS Income    | Calculated AUD ESS income                                |
+| 30-Day Lots   | Count of linked sale lots with `soldWithin30Days = true` |
+| FY            | Financial year                                           |
 
 Click a row to expand: shows ESS income calculation breakdown and linked sale lots.
 
 ### Sales List
 
-| Column | Source |
-|--------|--------|
-| Sale Date | `SaleLot.saleDate` |
-| Grant | `grantNumber` + `grantName` |
-| Shares | `sharesSold` |
-| Acquisition Date | `originalAcquisitionDate` |
-| Holding Period | Calculated days |
-| Cost Basis | `costBasis` (with AUD) |
-| Proceeds | `saleProceeds` (with AUD) |
-| Gain/Loss | Calculated AUD CGT |
-| 30-Day Rule | `soldWithin30Days` badge |
-| FY | Financial year |
+| Column           | Source                      |
+| ---------------- | --------------------------- |
+| Sale Date        | `SaleLot.saleDate`          |
+| Grant            | `grantNumber` + `grantName` |
+| Shares           | `sharesSold`                |
+| Acquisition Date | `originalAcquisitionDate`   |
+| Holding Period   | Calculated days             |
+| Cost Basis       | `costBasis` (with AUD)      |
+| Proceeds         | `saleProceeds` (with AUD)   |
+| Gain/Loss        | Calculated AUD CGT          |
+| 30-Day Rule      | `soldWithin30Days` badge    |
+| FY               | Financial year              |
 
 Click a row to expand: shows full CGT calculation breakdown with both forex rates.
 
@@ -144,13 +144,13 @@ Built with Recharts. All charts respect the global currency toggle and time-rang
 
 ### Display Rules
 
-| Context | USD Mode | AUD Mode |
-|---------|----------|----------|
-| Raw Shareworks values | Show USD | Show AUD (converted at relevant date) |
-| ESS income | Show USD equivalent | Show AUD (primary) |
-| CGT amounts | Show USD equivalent | Show AUD (primary) |
-| Cost basis | Show USD | Show AUD (at acquisition date rate) |
-| Sale proceeds | Show USD | Show AUD (at sale date rate) |
+| Context               | USD Mode            | AUD Mode                              |
+| --------------------- | ------------------- | ------------------------------------- |
+| Raw Shareworks values | Show USD            | Show AUD (converted at relevant date) |
+| ESS income            | Show USD equivalent | Show AUD (primary)                    |
+| CGT amounts           | Show USD equivalent | Show AUD (primary)                    |
+| Cost basis            | Show USD            | Show AUD (at acquisition date rate)   |
+| Sale proceeds         | Show USD            | Show AUD (at sale date rate)          |
 
 In AUD mode, the exchange rate used is shown as a tooltip or secondary text: e.g., "A$6,764.21 (rate: 0.6828 on 03-Jan-2023)"
 

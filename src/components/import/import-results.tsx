@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import type { ImportResult } from "@/services/csv-import.service";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { ImportResult } from '@/services/csv-import.service'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 interface ImportResultsProps {
-  result: ImportResult | null;
+  result: ImportResult | null
 }
 
 export function ImportResults({ result }: ImportResultsProps) {
-  if (!result) return null;
+  if (!result) return null
 
   if (result.ok) {
     return (
@@ -18,7 +18,7 @@ export function ImportResults({ result }: ImportResultsProps) {
           Imported {result.count} {result.type} records.
         </AlertDescription>
       </Alert>
-    );
+    )
   }
 
   return (
@@ -26,5 +26,5 @@ export function ImportResults({ result }: ImportResultsProps) {
       <AlertTitle>Import failed</AlertTitle>
       <AlertDescription>{result.error}</AlertDescription>
     </Alert>
-  );
+  )
 }

@@ -51,65 +51,65 @@ App Startup → Load IndexedDB → In-Memory Model → Services → UI
 
 ```typescript
 // Branded money types to prevent USD/AUD confusion
-type USD = number & { readonly __brand: 'USD' };
-type AUD = number & { readonly __brand: 'AUD' };
+type USD = number & { readonly __brand: 'USD' }
+type AUD = number & { readonly __brand: 'AUD' }
 
 interface Award {
-  grantDate: Date;
-  grantNumber: number;          // e.g. 9375, 14333
-  grantType: string;            // "Share Units (RSU)"
-  grantName: string;            // e.g. "02.15.2018 RSU Grant (New Hire)"
-  grantReason: string;          // New Hire, Refresh, Ongoing, Supplemental - Stub
-  conversionPrice: USD;         // Strike price (cost paid per share, typically $0 economics for RSUs but Shareworks records a value)
-  sharesGranted: number;
+  grantDate: Date
+  grantNumber: number // e.g. 9375, 14333
+  grantType: string // "Share Units (RSU)"
+  grantName: string // e.g. "02.15.2018 RSU Grant (New Hire)"
+  grantReason: string // New Hire, Refresh, Ongoing, Supplemental - Stub
+  conversionPrice: USD // Strike price (cost paid per share, typically $0 economics for RSUs but Shareworks records a value)
+  sharesGranted: number
 }
 
 interface VestingScheduleEntry {
-  grantNumber: number;
-  vestDate: Date;
-  shares: number;
+  grantNumber: number
+  vestDate: Date
+  shares: number
 }
 
 interface RsuRelease {
-  grantDate: Date;
-  grantNumber: number;
-  grantName: string;
-  grantReason: string;
-  releaseDate: Date;            // Actual vesting date
-  sharesVested: number;
-  sharesSoldToCover: number;
-  sharesHeld: number;
-  valueUsd: USD;                // Total value at vesting
-  fmvPerShare: USD;             // Fair market value per share at vesting
-  saleDateSellToCover?: Date;
-  salePricePerShare?: USD;
-  saleProceeds?: USD;
-  sellToCoverAmount: USD;
-  releaseReferenceNumber: string; // e.g. "RB6538C8B1"
+  grantDate: Date
+  grantNumber: number
+  grantName: string
+  grantReason: string
+  releaseDate: Date // Actual vesting date
+  sharesVested: number
+  sharesSoldToCover: number
+  sharesHeld: number
+  valueUsd: USD // Total value at vesting
+  fmvPerShare: USD // Fair market value per share at vesting
+  saleDateSellToCover?: Date
+  salePricePerShare?: USD
+  saleProceeds?: USD
+  sellToCoverAmount: USD
+  releaseReferenceNumber: string // e.g. "RB6538C8B1"
 }
 
 interface SaleLot {
-  withdrawalReferenceNumber: string;  // e.g. "WRC6476B1C8-1EE"
-  originatingReleaseRef: string;      // Links to RsuRelease
-  grantNumber: number;
-  grantName: string;
-  lotNumber: number;
-  saleType: string;                   // "Long Shares"
-  saleDate: Date;
-  originalAcquisitionDate: Date;      // Vesting date (cost basis date)
-  soldWithin30Days: boolean;          // Critical for 30-day rule
-  costBasisPerShare: USD;
-  costBasis: USD;
-  sharesSold: number;
-  saleProceeds: USD;
-  salePricePerShare: USD;
-  brokerageCommission: USD;
-  supplementalTransactionFee: USD;
+  withdrawalReferenceNumber: string // e.g. "WRC6476B1C8-1EE"
+  originatingReleaseRef: string // Links to RsuRelease
+  grantNumber: number
+  grantName: string
+  lotNumber: number
+  saleType: string // "Long Shares"
+  saleDate: Date
+  originalAcquisitionDate: Date // Vesting date (cost basis date)
+  soldWithin30Days: boolean // Critical for 30-day rule
+  costBasisPerShare: USD
+  costBasis: USD
+  sharesSold: number
+  saleProceeds: USD
+  salePricePerShare: USD
+  brokerageCommission: USD
+  supplementalTransactionFee: USD
 }
 
 interface ForexRate {
-  date: Date;
-  audToUsd: number;   // A$1 = x USD (as published by RBA)
+  date: Date
+  audToUsd: number // A$1 = x USD (as published by RBA)
 }
 ```
 
@@ -145,6 +145,7 @@ ESS Income (AUD) = ESS Income (USD) / audToUsd(releaseDate)
 ```
 
 **30-Day Rule**: When a `SaleLot` has `soldWithin30Days === true`:
+
 - The taxing point shifts from the vest date to the sale date
 - ESS income = sale proceeds (not vest value) for that lot
 - No separate CGT event for that lot
@@ -232,6 +233,7 @@ Two test layers:
 ## Implementation Phases
 
 ### Phase 1: Foundation
+
 - NextJS scaffolding with App Router + `output: 'export'`
 - Domain types (Zod schemas + branded money types)
 - Date utilities and money helper functions
@@ -239,6 +241,7 @@ Two test layers:
 - Unit tests for all foundation code
 
 ### Phase 2: Data Layer
+
 - CSV parsers for all 4 Shareworks file types:
   - Award Summary
   - Full Vesting Schedule
@@ -250,23 +253,27 @@ Two test layers:
 - Unit tests for parsers and store
 
 ### Phase 3: Calculation Engine
+
 - ESS income calculation service (including 30-day rule)
 - CGT calculation service (including 12-month discount and loss ordering)
 - Golden test cases with hand-calculated expected values
 - Property-based invariant tests
 
 ### Phase 4: Basic UI
+
 - Import page (drag-drop, file picker, CSV type auto-detection)
 - List views: awards, releases, sales
 - Currency toggle (USD/AUD)
 - Basic error display for import issues
 
 ### Phase 5: Visualization
+
 - Dashboard with summary cards
 - Charts: vest value over time, gains/losses by year, share price at vest
 - Time-range filtering (financial year, custom)
 
 ### Phase 6: Reports
+
 - Australian financial year tax reports
 - ESS income section (Item 12 / Label F)
 - CGT schedule (Item 18 / Labels H+A)
@@ -274,6 +281,7 @@ Two test layers:
 - Export: CSV, printable HTML
 
 ### Phase 7: Polish
+
 - Reconciliation warnings UI
 - Audit trail drill-down for every calculated value
 - Playwright E2E tests
@@ -281,15 +289,15 @@ Two test layers:
 
 ## Individual Feature Specifications
 
-| Spec | File | Scope |
-|------|------|-------|
-| CSV Import & Parsing | `csv-import.md` | File upload UI, per-type parser design, validation, error reporting, re-import strategy |
-| Data Store & Persistence | `data-store.md` | IndexedDB schema, DataStore interface, in-memory fake, JSON backup, data clearing |
-| ESS Income Calculation | `ess-income.md` | Per-release ESS income formula, 30-day rule at per-lot granularity, AUD conversion, FY aggregation, golden test cases |
-| Capital Gains Tax | `cgt.md` | Per-lot CGT, AUD conversion at respective dates, 12-month discount, ATO loss ordering, FY aggregation, golden test cases |
-| Forex Service | `forex.md` | RBA CSV parsing, conversion formula, business-day fallback, gap handling, service interface |
-| Query & Visualization | `query-visualization.md` | Dashboard, list views, time-range filtering, charts, currency toggle, audit trail drill-down |
-| Tax Report Generation | `reports.md` | FY reports, ATO item mapping, per-event detail, export formats, date range support |
+| Spec                     | File                     | Scope                                                                                                                    |
+| ------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| CSV Import & Parsing     | `csv-import.md`          | File upload UI, per-type parser design, validation, error reporting, re-import strategy                                  |
+| Data Store & Persistence | `data-store.md`          | IndexedDB schema, DataStore interface, in-memory fake, JSON backup, data clearing                                        |
+| ESS Income Calculation   | `ess-income.md`          | Per-release ESS income formula, 30-day rule at per-lot granularity, AUD conversion, FY aggregation, golden test cases    |
+| Capital Gains Tax        | `cgt.md`                 | Per-lot CGT, AUD conversion at respective dates, 12-month discount, ATO loss ordering, FY aggregation, golden test cases |
+| Forex Service            | `forex.md`               | RBA CSV parsing, conversion formula, business-day fallback, gap handling, service interface                              |
+| Query & Visualization    | `query-visualization.md` | Dashboard, list views, time-range filtering, charts, currency toggle, audit trail drill-down                             |
+| Tax Report Generation    | `reports.md`             | FY reports, ATO item mapping, per-event detail, export formats, date range support                                       |
 
 ## Resolved Design Decisions
 

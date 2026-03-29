@@ -1,32 +1,28 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import "./globals.css";
-import { AppProvider } from "@/components/providers/app-provider";
-import { AppHeader } from "@/components/header/app-header";
-import { IndexedDBStore } from "@/store/idb.store";
-import { parseForexCsv } from "@/parsers/forex.parser";
-import { createForexService, type ForexService } from "@/services/forex.service";
-import type { DataStore } from "@/store/data-store";
+import { useEffect, useState } from 'react'
+import './globals.css'
+import { AppProvider } from '@/components/providers/app-provider'
+import { AppHeader } from '@/components/header/app-header'
+import { IndexedDBStore } from '@/store/idb.store'
+import { parseForexCsv } from '@/parsers/forex.parser'
+import { createForexService, type ForexService } from '@/services/forex.service'
+import type { DataStore } from '@/store/data-store'
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [deps, setDeps] = useState<{ store: DataStore; forex: ForexService } | null>(null);
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [deps, setDeps] = useState<{ store: DataStore; forex: ForexService } | null>(null)
 
   useEffect(() => {
     async function init() {
-      const store = await IndexedDBStore.create();
-      const res = await fetch("/rba-forex.csv");
-      const csv = await res.text();
-      const rates = parseForexCsv(csv);
-      const forex = createForexService(rates);
-      setDeps({ store, forex });
+      const store = await IndexedDBStore.create()
+      const res = await fetch('/rba-forex.csv')
+      const csv = await res.text()
+      const rates = parseForexCsv(csv)
+      const forex = createForexService(rates)
+      setDeps({ store, forex })
     }
-    init();
-  }, []);
+    init()
+  }, [])
 
   return (
     <html lang="en">
@@ -43,5 +39,5 @@ export default function RootLayout({
         )}
       </body>
     </html>
-  );
+  )
 }

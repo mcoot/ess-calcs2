@@ -1,60 +1,60 @@
-import type { RsuRelease, SaleLot, AUD, USD } from "@/types";
-import { usd, aud } from "@/types";
-import type { ForexService } from "./forex.service";
-import { toFyString } from "@/lib/dates";
-import { roundTo2dp, sumAud, sumUsd } from "@/lib/money";
+import type { RsuRelease, SaleLot, AUD, USD } from '@/types'
+import { usd, aud } from '@/types'
+import type { ForexService } from './forex.service'
+import { toFyString } from '@/lib/dates'
+import { roundTo2dp, sumAud, sumUsd } from '@/lib/money'
 
 // ── Result types (per spec) ─────────────────────────────────────────
 
 export interface ThirtyDayLotIncome {
-  saleLotRef: string;
-  saleDate: Date;
-  sharesSold: number;
-  saleProceedsUsd: USD;
-  essIncomeAud: AUD;
-  forexRate: number;
-  forexDate: Date;
-  financialYear: string;
+  saleLotRef: string
+  saleDate: Date
+  sharesSold: number
+  saleProceedsUsd: USD
+  essIncomeAud: AUD
+  forexRate: number
+  forexDate: Date
+  financialYear: string
 }
 
 export interface ReleaseEssIncome {
-  releaseRef: string;
-  grantNumber: number;
-  releaseDate: Date;
-  sharesVested: number;
-  fmvPerShare: USD;
+  releaseRef: string
+  grantNumber: number
+  releaseDate: Date
+  sharesVested: number
+  fmvPerShare: USD
 
   // Standard portion (not sold within 30 days)
-  standardShares: number;
-  standardIncomeUsd: USD;
-  standardIncomeAud: AUD;
-  standardForexRate: number;
-  standardForexDate: Date;
+  standardShares: number
+  standardIncomeUsd: USD
+  standardIncomeAud: AUD
+  standardForexRate: number
+  standardForexDate: Date
 
   // 30-day rule portions
-  thirtyDayLots: ThirtyDayLotIncome[];
+  thirtyDayLots: ThirtyDayLotIncome[]
 
   // Totals
-  totalEssIncomeAud: AUD;
-  totalEssIncomeUsd: USD;
-  financialYear: string;
+  totalEssIncomeAud: AUD
+  totalEssIncomeUsd: USD
+  financialYear: string
 }
 
 export interface FyEssIncome {
-  financialYear: string;
-  releases: ReleaseEssIncome[];
-  totalEssIncomeAud: AUD;
-  totalEssIncomeUsd: USD;
+  financialYear: string
+  releases: ReleaseEssIncome[]
+  totalEssIncomeAud: AUD
+  totalEssIncomeUsd: USD
 }
 
 // ── Service interface ───────────────────────────────────────────────
 
 export interface EssIncomeService {
   /** Calculate ESS income for each release, applying 30-day rule at per-lot granularity. */
-  calculateByRelease(releases: RsuRelease[], saleLots: SaleLot[]): ReleaseEssIncome[];
+  calculateByRelease(releases: RsuRelease[], saleLots: SaleLot[]): ReleaseEssIncome[]
 
   /** Group release ESS income results by financial year. */
-  aggregateByFy(releaseIncomes: ReleaseEssIncome[]): FyEssIncome[];
+  aggregateByFy(releaseIncomes: ReleaseEssIncome[]): FyEssIncome[]
 }
 
 // ── Factory ─────────────────────────────────────────────────────────
@@ -64,19 +64,20 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
     return releases.map((release) => {
       // Find 30-day sale lots for this release
       const thirtyDaySaleLots = saleLots.filter(
-        (lot) => lot.originatingReleaseRef === release.releaseReferenceNumber && lot.soldWithin30Days
-      );
+        (lot) =>
+          lot.originatingReleaseRef === release.releaseReferenceNumber && lot.soldWithin30Days,
+      )
 
-      const thirtyDayShares = thirtyDaySaleLots.reduce((sum, lot) => sum + lot.sharesSold, 0);
-      const standardShares = release.sharesVested - thirtyDayShares;
+      const thirtyDayShares = thirtyDaySaleLots.reduce((sum, lot) => sum + lot.sharesSold, 0)
+      const standardShares = release.sharesVested - thirtyDayShares
 
       // Standard portion: shares × FMV, converted at vest date
-      const standardIncomeUsd = usd(roundTo2dp(standardShares * (release.fmvPerShare as number)));
-      const vestForex = forex.usdToAud(standardIncomeUsd, release.releaseDate);
+      const standardIncomeUsd = usd(roundTo2dp(standardShares * (release.fmvPerShare as number)))
+      const vestForex = forex.usdToAud(standardIncomeUsd, release.releaseDate)
 
       // 30-day lots: each lot's ESS income = sale proceeds converted at sale date
       const thirtyDayLots: ThirtyDayLotIncome[] = thirtyDaySaleLots.map((lot) => {
-        const saleForex = forex.usdToAud(lot.saleProceeds, lot.saleDate);
+        const saleForex = forex.usdToAud(lot.saleProceeds, lot.saleDate)
         return {
           saleLotRef: lot.withdrawalReferenceNumber,
           saleDate: lot.saleDate,
@@ -86,11 +87,14 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
           forexRate: saleForex.rate,
           forexDate: saleForex.rateDate,
           financialYear: toFyString(lot.saleDate),
-        };
-      });
+        }
+      })
 
-      const totalEssIncomeAud = sumAud([vestForex.aud, ...thirtyDayLots.map((l) => l.essIncomeAud)]);
-      const totalEssIncomeUsd = sumUsd([standardIncomeUsd, ...thirtyDayLots.map((l) => l.saleProceedsUsd)]);
+      const totalEssIncomeAud = sumAud([vestForex.aud, ...thirtyDayLots.map((l) => l.essIncomeAud)])
+      const totalEssIncomeUsd = sumUsd([
+        standardIncomeUsd,
+        ...thirtyDayLots.map((l) => l.saleProceedsUsd),
+      ])
 
       return {
         releaseRef: release.releaseReferenceNumber,
@@ -107,35 +111,35 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
         totalEssIncomeAud,
         totalEssIncomeUsd,
         financialYear: toFyString(release.releaseDate),
-      };
-    });
+      }
+    })
   }
 
   function aggregateByFy(releaseIncomes: ReleaseEssIncome[]): FyEssIncome[] {
     // Build a map of FY → { releases, total AUD }
     // Standard income goes to the release's vest-date FY.
     // Each 30-day lot's income goes to the lot's sale-date FY.
-    const fyTotalsAud = new Map<string, AUD>();
-    const fyTotalsUsd = new Map<string, USD>();
-    const fyReleases = new Map<string, ReleaseEssIncome[]>();
+    const fyTotalsAud = new Map<string, AUD>()
+    const fyTotalsUsd = new Map<string, USD>()
+    const fyReleases = new Map<string, ReleaseEssIncome[]>()
 
     function addToFy(fy: string, amountAud: AUD, amountUsd: USD, release: ReleaseEssIncome) {
-      fyTotalsAud.set(fy, aud((fyTotalsAud.get(fy) ?? 0) + (amountAud as number)));
-      fyTotalsUsd.set(fy, usd((fyTotalsUsd.get(fy) ?? 0) + (amountUsd as number)));
-      const existing = fyReleases.get(fy) ?? [];
+      fyTotalsAud.set(fy, aud((fyTotalsAud.get(fy) ?? 0) + (amountAud as number)))
+      fyTotalsUsd.set(fy, usd((fyTotalsUsd.get(fy) ?? 0) + (amountUsd as number)))
+      const existing = fyReleases.get(fy) ?? []
       if (!existing.includes(release)) {
-        existing.push(release);
+        existing.push(release)
       }
-      fyReleases.set(fy, existing);
+      fyReleases.set(fy, existing)
     }
 
     for (const ri of releaseIncomes) {
       // Standard portion → vest-date FY (adding 0 is a no-op on the total)
-      addToFy(ri.financialYear, ri.standardIncomeAud, ri.standardIncomeUsd, ri);
+      addToFy(ri.financialYear, ri.standardIncomeAud, ri.standardIncomeUsd, ri)
 
       // 30-day lots → each lot's sale-date FY
       for (const lot of ri.thirtyDayLots) {
-        addToFy(lot.financialYear, lot.essIncomeAud, lot.saleProceedsUsd, ri);
+        addToFy(lot.financialYear, lot.essIncomeAud, lot.saleProceedsUsd, ri)
       }
     }
 
@@ -144,8 +148,8 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
       releases: fyReleases.get(fy) ?? [],
       totalEssIncomeAud: aud(roundTo2dp(totalAud as number)),
       totalEssIncomeUsd: usd(roundTo2dp((fyTotalsUsd.get(fy) ?? 0) as number)),
-    }));
+    }))
   }
 
-  return { calculateByRelease, aggregateByFy };
+  return { calculateByRelease, aggregateByFy }
 }

@@ -12,7 +12,9 @@ export function parseAwardSummary(csv: string): ParseResult<Award> {
     for (const line of lines) {
       const cols = splitCsvRow(line)
       const grantNumberRaw = cols[2]?.trim()
-      if (!grantNumberRaw) continue
+      if (!grantNumberRaw) {
+        continue
+      }
 
       awards.push(
         AwardSchema.parse({

@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { IndexedDBStore } from './idb.store'
 import type { DataStore } from './data-store'
 import type { Award, VestingScheduleEntry, RsuRelease, SaleLot, ForexRate } from '@/types'

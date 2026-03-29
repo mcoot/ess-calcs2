@@ -159,8 +159,10 @@ export class IndexedDBStore implements DataStore {
   async getConfig(): Promise<AppConfig | null> {
     const tx = this.db.transaction('config', 'readonly')
     const result = await openRequest(tx.objectStore('config').get('appConfig'))
-    if (!result) return null
-    const { key, ...config } = result
+    if (!result) {
+      return null
+    }
+    const { key: _key, ...config } = result
     return config as AppConfig
   }
 

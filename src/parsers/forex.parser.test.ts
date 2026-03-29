@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseForexCsv } from './forex.parser'
-import { AppError, ErrorCodes } from '@/lib/errors'
+import { ErrorCodes } from '@/lib/errors'
 
 function makeCsv(...dataRows: string[]): string {
   return dataRows.join('\n')

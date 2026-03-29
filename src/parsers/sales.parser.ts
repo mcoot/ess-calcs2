@@ -19,7 +19,9 @@ export function parseSales(csv: string): ParseResult<SaleLot> {
     for (const line of lines) {
       const cols = splitCsvRow(line)
       const withdrawalRef = cols[2]?.trim()
-      if (!withdrawalRef) continue
+      if (!withdrawalRef) {
+        continue
+      }
 
       lots.push(
         SaleLotSchema.parse({

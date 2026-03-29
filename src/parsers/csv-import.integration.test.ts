@@ -16,7 +16,9 @@ describe('CSV import integration (real sample files)', () => {
   it('Award Summary: parses all 10 awards', () => {
     const result = parseAwardSummary(readSample('Award Summary.csv'))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(10)
     const first = result.data[0]
     expect(first.grantNumber).toBe(9375)
@@ -28,7 +30,9 @@ describe('CSV import integration (real sample files)', () => {
   it('Full Vesting Schedule: parses all 135 entries', () => {
     const result = parseVestingSchedule(readSample('Full Vesting Schedule.csv'))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(135)
     const first = result.data[0]
     expect(first.grantNumber).toBe(9375)
@@ -39,7 +43,9 @@ describe('CSV import integration (real sample files)', () => {
   it('RSU Releases: parses all release rows', () => {
     const result = parseRsuReleases(readSample('RSU Releases.csv'))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data.length).toBeGreaterThan(90)
     const first = result.data[0]
     expect(first.grantNumber).toBe(9375)
@@ -50,7 +56,9 @@ describe('CSV import integration (real sample files)', () => {
   it('Sales - Long Shares: parses all sale lots', () => {
     const result = parseSales(readSample('Sales - Long Shares.csv'))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data.length).toBeGreaterThan(100)
     const first = result.data[0]
     expect(first.withdrawalReferenceNumber).toBe('WRC6476B1C8-1EE')

@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { usd, aud } from './index'
-import type { USD, AUD } from './index'
+import { usd } from './index'
 
 // ── Reusable refinements ─────────────────────────────────────────────
 

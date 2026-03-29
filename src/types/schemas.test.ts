@@ -97,7 +97,7 @@ describe('AwardSchema', () => {
   })
 
   it('fails when grantName is missing', () => {
-    const { grantName, ...rest } = validAward()
+    const { grantName: _grantName, ...rest } = validAward()
     expect(AwardSchema.safeParse(rest).success).toBe(false)
   })
 
@@ -198,7 +198,12 @@ describe('RsuReleaseSchema', () => {
   })
 
   it('parses a valid release with optionals omitted', () => {
-    const { saleDateSellToCover, salePricePerShare, saleProceeds, ...rest } = validRsuRelease()
+    const {
+      saleDateSellToCover: _s1,
+      salePricePerShare: _s2,
+      saleProceeds: _s3,
+      ...rest
+    } = validRsuRelease()
     const result = RsuReleaseSchema.safeParse(rest)
     expect(result.success).toBe(true)
   })

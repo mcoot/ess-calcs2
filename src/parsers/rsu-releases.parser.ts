@@ -12,7 +12,9 @@ export function parseRsuReleases(csv: string): ParseResult<RsuRelease> {
     for (const line of lines) {
       const cols = splitCsvRow(line)
       const grantNumberRaw = cols[3]?.trim()
-      if (!grantNumberRaw) continue
+      if (!grantNumberRaw) {
+        continue
+      }
 
       const saleDateRaw = cols[15]?.trim()
       const salePriceRaw = cols[16]?.trim()

@@ -32,7 +32,9 @@ export function DataSummary() {
     load()
   }, [store, refreshKey])
 
-  if (!counts) return null
+  if (!counts) {
+    return null
+  }
 
   const total = counts.awards + counts.vestingSchedule + counts.releases + counts.saleLots
   if (total === 0) {

@@ -20,7 +20,9 @@ describe('parseSales', () => {
   it('parses golden values for first sale lot', () => {
     const result = parseSales(makeCsv(ROW_1))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(1)
     const lot = result.data[0]
     expect(lot.withdrawalReferenceNumber).toBe('WRC6476B1C8-1EE')
@@ -44,7 +46,9 @@ describe('parseSales', () => {
   it('skips header and total rows', () => {
     const result = parseSales(makeCsv(ROW_1, ROW_2, TOTAL_ROW))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(2)
   })
 

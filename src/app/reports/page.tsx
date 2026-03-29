@@ -60,7 +60,9 @@ export default function ReportsPage() {
 
   const report: FyTaxReport | null = useMemo(() => {
     setReportError(null)
-    if (!selectedFy) return null
+    if (!selectedFy) {
+      return null
+    }
     try {
       return reportService.generateFyReport(selectedFy, releases, saleLots, essIncome, cgt)
     } catch (err) {
@@ -74,19 +76,25 @@ export default function ReportsPage() {
   }, [reportService, selectedFy, releases, saleLots, essIncome, cgt])
 
   function handleExportEss() {
-    if (!report) return
+    if (!report) {
+      return
+    }
     const csv = csvExport.exportEssIncomeCsv(report.essIncomeRows, report.financialYear)
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-ess-income.csv`)
   }
 
   function handleExportCgt() {
-    if (!report) return
+    if (!report) {
+      return
+    }
     const csv = csvExport.exportCgtCsv(report.cgtRows, report.financialYear)
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-cgt.csv`)
   }
 
   function handleExport30Day() {
-    if (!report) return
+    if (!report) {
+      return
+    }
     const csv = csvExport.exportThirtyDayCsv(report.thirtyDaySummaryRows, report.financialYear)
     downloadCsv(csv, `ess-tax-report-FY${report.financialYear}-30day.csv`)
   }

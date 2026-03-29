@@ -21,7 +21,9 @@ describe('parseAwardSummary', () => {
   it('parses golden values for grant 9375', () => {
     const result = parseAwardSummary(makeCsv(ROW_9375))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(1)
     const award = result.data[0]
     expect(award.grantNumber).toBe(9375)
@@ -36,14 +38,18 @@ describe('parseAwardSummary', () => {
   it('skips headers and total row, returns only data rows', () => {
     const result = parseAwardSummary(makeCsv(ROW_9375, ROW_83105, TOTAL_ROW))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(2)
   })
 
   it('parses quoted shares with commas', () => {
     const result = parseAwardSummary(makeCsv(ROW_83105))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data[0].sharesGranted).toBe(1520)
   })
 

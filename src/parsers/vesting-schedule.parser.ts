@@ -12,11 +12,15 @@ export function parseVestingSchedule(csv: string): ParseResult<VestingScheduleEn
     const entries: VestingScheduleEntry[] = []
 
     for (const line of lines) {
-      if (SECTION_BREAK.test(line)) continue
+      if (SECTION_BREAK.test(line)) {
+        continue
+      }
 
       const cols = splitCsvRow(line)
       const grantNumberRaw = cols[2]?.trim()
-      if (!grantNumberRaw) continue
+      if (!grantNumberRaw) {
+        continue
+      }
 
       entries.push(
         VestingScheduleEntrySchema.parse({

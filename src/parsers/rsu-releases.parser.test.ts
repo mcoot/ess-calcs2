@@ -20,7 +20,9 @@ describe('parseRsuReleases', () => {
   it('parses golden values for first release', () => {
     const result = parseRsuReleases(makeCsv(ROW_1))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(1)
     const r = result.data[0]
     expect(r.grantNumber).toBe(9375)
@@ -43,7 +45,9 @@ describe('parseRsuReleases', () => {
   it('skips header and total rows', () => {
     const result = parseRsuReleases(makeCsv(ROW_1, ROW_2, TOTAL_ROW))
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(2)
   })
 

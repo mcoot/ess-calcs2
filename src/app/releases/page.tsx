@@ -5,7 +5,7 @@ import { useAppContext } from '@/components/providers/app-provider'
 import { ReleasesTable } from '@/components/releases/releases-table'
 import { FySelector } from '@/components/dashboard/fy-selector'
 import { useFyFilter } from '@/hooks/use-fy-filter'
-import type { RsuRelease, SaleLot } from '@/types'
+import type { RsuRelease } from '@/types'
 import type { ReleaseEssIncome } from '@/services/ess-income.service'
 
 export default function ReleasesPage() {

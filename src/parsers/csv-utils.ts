@@ -1,5 +1,3 @@
-import type { ZodType } from 'zod'
-
 export type ParseResult<T> = { ok: true; data: T[] } | { ok: false; error: string }
 
 export function parseMoney(raw: string): number {
@@ -11,8 +9,12 @@ export function parseShares(raw: string): number {
 }
 
 export function parseBoolean(raw: string): boolean {
-  if (raw === 'YES') return true
-  if (raw === 'NO') return false
+  if (raw === 'YES') {
+    return true
+  }
+  if (raw === 'NO') {
+    return false
+  }
   throw new Error(`Invalid boolean value: "${raw}"`)
 }
 

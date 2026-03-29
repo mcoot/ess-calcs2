@@ -8,7 +8,9 @@ interface ImportResultsProps {
 }
 
 export function ImportResults({ result }: ImportResultsProps) {
-  if (!result) return null
+  if (!result) {
+    return null
+  }
 
   if (result.ok) {
     return (

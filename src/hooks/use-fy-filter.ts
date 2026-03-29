@@ -5,7 +5,9 @@ export function useFyFilter() {
 
   const filterByFy = useCallback(
     <T extends { financialYear: string }>(items: T[]): T[] => {
-      if (selectedFy === 'all') return items
+      if (selectedFy === 'all') {
+        return items
+      }
       return items.filter((item) => item.financialYear === selectedFy)
     },
     [selectedFy],

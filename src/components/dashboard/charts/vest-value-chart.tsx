@@ -13,18 +13,12 @@ interface VestValueChartProps {
 const COLORS = ['#2563eb', '#16a34a', '#ea580c', '#8b5cf6', '#dc2626', '#0891b2']
 
 export function VestValueChart({ data, currency }: VestValueChartProps) {
-  if (data.length === 0) {
-    return (
-      <p className="py-8 text-center text-muted-foreground" data-testid="vest-value-empty">
-        No vest data available.
-      </p>
-    )
-  }
-
   const { grants, chartData } = useMemo(() => {
     const g = [...new Set(data.map((d) => d.grant))]
     const grouped = data.reduce<Record<string, Record<string, number>>>((acc, d) => {
-      if (!acc[d.date]) acc[d.date] = {}
+      if (!acc[d.date]) {
+        acc[d.date] = {}
+      }
       acc[d.date][d.grant] = d.value
       return acc
     }, {})
@@ -33,6 +27,14 @@ export function VestValueChart({ data, currency }: VestValueChartProps) {
       .map(([date, values]) => ({ date, ...values }))
     return { grants: g, chartData: cd }
   }, [data])
+
+  if (data.length === 0) {
+    return (
+      <p className="py-8 text-center text-muted-foreground" data-testid="vest-value-empty">
+        No vest data available.
+      </p>
+    )
+  }
 
   const prefix = currencyPrefix(currency)
 

@@ -6,7 +6,9 @@ interface ReconciliationWarningsProps {
 }
 
 export function ReconciliationWarnings({ warnings }: ReconciliationWarningsProps) {
-  if (warnings.length === 0) return null
+  if (warnings.length === 0) {
+    return null
+  }
 
   return (
     <div className="space-y-2">

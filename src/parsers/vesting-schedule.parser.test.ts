@@ -19,7 +19,9 @@ describe('parseVestingSchedule', () => {
       ),
     )
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(1)
     expect(result.data[0].grantNumber).toBe(9375)
     expect(result.data[0].vestDate).toEqual(new Date(Date.UTC(2019, 1, 18)))
@@ -39,7 +41,9 @@ describe('parseVestingSchedule', () => {
       ),
     )
     expect(result.ok).toBe(true)
-    if (!result.ok) return
+    if (!result.ok) {
+      return
+    }
     expect(result.data).toHaveLength(2)
   })
 

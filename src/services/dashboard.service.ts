@@ -1,5 +1,4 @@
 import type { Award, AUD, USD, SaleLot } from '@/types'
-import { aud, usd } from '@/types'
 import type { ReleaseEssIncome } from './ess-income.service'
 import type { FyCgtSummary } from './cgt.service'
 import { sumAud, sumUsd } from '@/lib/money'
@@ -44,8 +43,12 @@ export function createDashboardService(): DashboardService {
   ): DashboardSummary {
     // Collect all available FYs (always unfiltered)
     const fySet = new Set<string>()
-    for (const r of releaseIncomes) fySet.add(r.financialYear)
-    for (const c of fyCgtSummaries) fySet.add(c.financialYear)
+    for (const r of releaseIncomes) {
+      fySet.add(r.financialYear)
+    }
+    for (const c of fyCgtSummaries) {
+      fySet.add(c.financialYear)
+    }
     const availableFinancialYears = [...fySet].sort()
 
     // Apply FY filter to data subsets

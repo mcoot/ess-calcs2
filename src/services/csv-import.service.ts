@@ -1,4 +1,4 @@
-import type { DataType } from '@/types'
+import type { Award, DataType, RsuRelease, SaleLot, VestingScheduleEntry } from '@/types'
 import type { DataStore } from '@/store/data-store'
 import { parseAwardSummary } from '@/parsers/award-summary.parser'
 import { parseVestingSchedule } from '@/parsers/vesting-schedule.parser'
@@ -56,16 +56,16 @@ function parseByType(type: DataType, csvText: string) {
 async function saveByType(store: DataStore, type: DataType, data: unknown[]) {
   switch (type) {
     case 'awards':
-      await store.saveAwards(data as any)
+      await store.saveAwards(data as Award[])
       break
     case 'vestingSchedule':
-      await store.saveVestingSchedule(data as any)
+      await store.saveVestingSchedule(data as VestingScheduleEntry[])
       break
     case 'releases':
-      await store.saveRsuReleases(data as any)
+      await store.saveRsuReleases(data as RsuRelease[])
       break
     case 'saleLots':
-      await store.saveSaleLots(data as any)
+      await store.saveSaleLots(data as SaleLot[])
       break
   }
 }

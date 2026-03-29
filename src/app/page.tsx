@@ -58,8 +58,12 @@ export default function DashboardPage() {
 
   const availableFinancialYears = useMemo(() => {
     const fySet = new Set<string>()
-    for (const r of releaseIncomes) fySet.add(r.financialYear)
-    for (const c of fyCgtSummaries) fySet.add(c.financialYear)
+    for (const r of releaseIncomes) {
+      fySet.add(r.financialYear)
+    }
+    for (const c of fyCgtSummaries) {
+      fySet.add(c.financialYear)
+    }
     return [...fySet].sort()
   }, [releaseIncomes, fyCgtSummaries])
 

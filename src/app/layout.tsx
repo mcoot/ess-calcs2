@@ -15,7 +15,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     async function init() {
       const store = await IndexedDBStore.create()
-      const res = await fetch('/rba-forex.csv')
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+      const res = await fetch(`${basePath}/rba-forex.csv`)
       const csv = await res.text()
       const rates = parseForexCsv(csv)
       const forex = createForexService(rates)

@@ -71,7 +71,7 @@ describe("ReleasesTable", () => {
     expect(screen.getByText("9375")).toBeDefined();
     expect(screen.getByText("02.15.2018 RSU Grant (New Hire)")).toBeDefined();
     expect(screen.getByText("30")).toBeDefined();
-    expect(screen.getByText("$153.88")).toBeDefined();
+    expect(screen.getByText("US$153.88")).toBeDefined();
     expect(screen.getByText("A$6,155.20")).toBeDefined();
     expect(screen.getByText("2019-20")).toBeDefined();
     const rows = screen.getAllByRole("row");
@@ -86,7 +86,7 @@ describe("ReleasesTable", () => {
 
   it("shows USD ESS income when displayCurrency is USD", () => {
     render(<ReleasesTable incomes={[income]} releases={[release]} displayCurrency="USD" />);
-    expect(screen.getByText("$4,616.40")).toBeDefined();
+    expect(screen.getByText("US$4,616.40")).toBeDefined();
     expect(screen.getByText("ESS Income (USD)")).toBeDefined();
   });
 

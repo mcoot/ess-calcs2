@@ -72,9 +72,9 @@ describe("SummaryCards", () => {
   it("displays USD formatted currency values when USD selected", () => {
     render(<SummaryCards summary={sampleSummary} displayCurrency="USD" />);
 
-    expect(screen.getByText("$32,000.25")).toBeDefined();
-    expect(screen.getByText("$9,100.50")).toBeDefined();
-    expect(screen.getByText("$2,400.00")).toBeDefined();
+    expect(screen.getByText("US$32,000.25")).toBeDefined();
+    expect(screen.getByText("US$9,100.50")).toBeDefined();
+    expect(screen.getByText("US$2,400.00")).toBeDefined();
   });
 
   it("renders zero values for empty summary", () => {

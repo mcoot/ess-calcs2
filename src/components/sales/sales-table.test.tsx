@@ -84,7 +84,7 @@ describe("SalesTable", () => {
 
   it("shows USD gain/loss when displayCurrency is USD", () => {
     render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} displayCurrency="USD" />);
-    expect(screen.getByText("$6,630.62")).toBeDefined();
+    expect(screen.getByText("US$6,630.62")).toBeDefined();
     expect(screen.getByText("Gain/Loss (USD)")).toBeDefined();
   });
 
@@ -155,7 +155,7 @@ describe("SalesTable", () => {
 
     // Group header should show summed shares (35) and proceeds ($5,000.00)
     expect(screen.getByText("35")).toBeDefined();
-    expect(screen.getByText("$5,000.00")).toBeDefined();
+    expect(screen.getByText("US$5,000.00")).toBeDefined();
   });
 
   it("30-day lot has expand button showing ESS income info", async () => {

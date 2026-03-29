@@ -44,8 +44,8 @@ describe("roundTo2dp", () => {
 // ── formatCurrency ───────────────────────────────────────────────────
 
 describe("formatCurrency", () => {
-  it("formats USD with comma grouping and 2dp", () => {
-    expect(formatCurrency(1234.5, "USD")).toBe("$1,234.50");
+  it("formats USD with US$ prefix, comma grouping and 2dp", () => {
+    expect(formatCurrency(1234.5, "USD")).toBe("US$1,234.50");
   });
 
   it("formats AUD with A$ prefix", () => {
@@ -53,11 +53,11 @@ describe("formatCurrency", () => {
   });
 
   it("formats zero", () => {
-    expect(formatCurrency(0, "USD")).toBe("$0.00");
+    expect(formatCurrency(0, "USD")).toBe("US$0.00");
   });
 
   it("formats negative values", () => {
-    expect(formatCurrency(-500.1, "USD")).toBe("-$500.10");
+    expect(formatCurrency(-500.1, "USD")).toBe("-US$500.10");
   });
 
   it("formats large numbers with comma grouping", () => {

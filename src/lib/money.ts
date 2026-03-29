@@ -6,8 +6,12 @@ export function roundTo2dp(n: number): number {
   return sign * Math.round((Math.abs(n) + Number.EPSILON) * 100) / 100;
 }
 
+export function currencyPrefix(currency: "USD" | "AUD"): string {
+  return currency === "AUD" ? "A$" : "US$";
+}
+
 export function formatCurrency(amount: number, currency: "USD" | "AUD"): string {
-  const prefix = currency === "AUD" ? "A$" : "$";
+  const prefix = currencyPrefix(currency);
   const abs = Math.abs(amount);
   const formatted =
     prefix +

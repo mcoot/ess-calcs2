@@ -12,6 +12,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import type { CgtFyBar } from "@/lib/chart-data";
+import { currencyPrefix } from "@/lib/money";
 
 interface CgtFyChartProps {
   data: CgtFyBar[];
@@ -28,8 +29,8 @@ export function CgtFyChart({ data, currency }: CgtFyChartProps) {
       <ResponsiveContainer width="100%" height={300}>
         <ComposedChart data={data}>
           <XAxis dataKey="fy" />
-          <YAxis tickFormatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${v.toLocaleString()}`} />
+          <YAxis tickFormatter={(v: number) => `${currencyPrefix(currency)}${(v / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(v: number) => `${currencyPrefix(currency)}${v.toLocaleString()}`} />
           <Legend />
           <ReferenceLine y={0} stroke="#666" />
           <Bar dataKey="shortTermGains" fill="#16a34a" name="Short-term Gains" />

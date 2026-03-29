@@ -37,9 +37,9 @@ describe("EssIncomeDrilldown", () => {
     render(<EssIncomeDrilldown row={standardRow} />);
 
     expect(screen.getByText(/RB-001/)).toBeDefined();
-    expect(screen.getByText(/100 × \$150\.00 = \$15,000\.00/)).toBeDefined();
+    expect(screen.getByText(/100 × US\$150\.00 = US\$15,000\.00/)).toBeDefined();
     expect(screen.getByText(/Exchange rate: 0\.6500/)).toBeDefined();
-    expect(screen.getByText(/\$15,000\.00 \/ 0\.6500 = A\$23,076\.92/)).toBeDefined();
+    expect(screen.getByText(/US\$15,000\.00 \/ 0\.6500 = A\$23,076\.92/)).toBeDefined();
   });
 
   it("renders 30-day rule indicator when applicable", () => {

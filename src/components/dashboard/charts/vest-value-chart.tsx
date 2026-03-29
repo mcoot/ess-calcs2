@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { useMemo } from "react";
 import type { VestValueBar } from "@/lib/chart-data";
+import { currencyPrefix } from "@/lib/money";
 
 interface VestValueChartProps {
   data: VestValueBar[];
@@ -37,7 +38,7 @@ export function VestValueChart({ data, currency }: VestValueChartProps) {
     return { grants: g, chartData: cd };
   }, [data]);
 
-  const prefix = currency === "AUD" ? "A$" : "$";
+  const prefix = currencyPrefix(currency);
 
   return (
     <div data-testid="vest-value-chart">

@@ -10,6 +10,7 @@ import {
   Legend,
 } from "recharts";
 import type { EssIncomeFyBar } from "@/lib/chart-data";
+import { currencyPrefix } from "@/lib/money";
 
 interface EssIncomeFyChartProps {
   data: EssIncomeFyBar[];
@@ -26,8 +27,8 @@ export function EssIncomeFyChart({ data, currency }: EssIncomeFyChartProps) {
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <XAxis dataKey="fy" />
-          <YAxis tickFormatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${v.toLocaleString()}`} />
+          <YAxis tickFormatter={(v: number) => `${currencyPrefix(currency)}${(v / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(v: number) => `${currencyPrefix(currency)}${v.toLocaleString()}`} />
           <Legend />
           <Bar dataKey="standard" stackId="ess" fill="#2563eb" name="Standard" />
           <Bar dataKey="thirtyDay" stackId="ess" fill="#ea580c" name="30-Day Rule" />

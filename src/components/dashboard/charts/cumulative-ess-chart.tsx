@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 import type { CumulativeEssPoint } from "@/lib/chart-data";
+import { currencyPrefix } from "@/lib/money";
 
 interface CumulativeEssChartProps {
   data: CumulativeEssPoint[];
@@ -31,8 +32,8 @@ export function CumulativeEssChart({ data, currency }: CumulativeEssChartProps) 
             </linearGradient>
           </defs>
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${v.toLocaleString()}`} />
+          <YAxis tickFormatter={(v: number) => `${currencyPrefix(currency)}${(v / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(v: number) => `${currencyPrefix(currency)}${v.toLocaleString()}`} />
           <Area type="monotone" dataKey="cumulative" stroke="#2563eb" fill="url(#essGradient)" />
         </AreaChart>
       </ResponsiveContainer>

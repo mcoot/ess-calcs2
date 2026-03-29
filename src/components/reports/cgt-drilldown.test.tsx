@@ -40,12 +40,12 @@ describe("CgtDrilldown", () => {
     render(<CgtDrilldown row={longTermRow} />);
 
     // Cost basis
-    expect(screen.getByText(/Cost basis.*\$2,000\.00.*0\.6500.*A\$3,076\.92/)).toBeDefined();
+    expect(screen.getByText(/Cost basis.*US\$2,000\.00.*0\.6500.*A\$3,076\.92/)).toBeDefined();
     // Proceeds breakdown
-    expect(screen.getByText(/Gross.*\$3,000\.00/)).toBeDefined();
-    expect(screen.getByText(/Brokerage.*\$14\.95/)).toBeDefined();
-    expect(screen.getByText(/Fees.*\$0\.08/)).toBeDefined();
-    expect(screen.getByText(/Net.*\$2,984\.97.*0\.6800.*A\$4,389\.66/)).toBeDefined();
+    expect(screen.getByText(/Gross.*US\$3,000\.00/)).toBeDefined();
+    expect(screen.getByText(/Brokerage.*US\$14\.95/)).toBeDefined();
+    expect(screen.getByText(/Fees.*US\$0\.08/)).toBeDefined();
+    expect(screen.getByText(/Net.*US\$2,984\.97.*0\.6800.*A\$4,389\.66/)).toBeDefined();
     // Gain
     expect(screen.getByText(/A\$4,389\.66 − A\$3,076\.92 = A\$1,312\.74/)).toBeDefined();
   });

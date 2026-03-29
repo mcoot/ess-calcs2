@@ -58,8 +58,8 @@ describe("AwardsTable", () => {
     expect(rows).toHaveLength(3);
   });
 
-  it("formats currency values with dollar prefix", () => {
+  it("formats currency values with US$ prefix", () => {
     renderWithProvider(<AwardsTable awards={[award1]} />);
-    expect(screen.getByText("$52.65")).toBeDefined();
+    expect(screen.getByText("US$52.65")).toBeDefined();
   });
 });

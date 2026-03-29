@@ -24,8 +24,8 @@ export function SharePriceChart({ data }: SharePriceChartProps) {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v: number) => `$${v}`} />
-          <Tooltip formatter={(v: number) => `$${v.toLocaleString()}`} labelFormatter={(l) => `Date: ${l}`} />
+          <YAxis tickFormatter={(v: number) => `US$${v}`} />
+          <Tooltip formatter={(v: number) => `US$${v.toLocaleString()}`} labelFormatter={(l) => `Date: ${l}`} />
           <Line type="monotone" dataKey="fmvPerShare" stroke="#2563eb" dot={{ r: 4 }} />
         </LineChart>
       </ResponsiveContainer>

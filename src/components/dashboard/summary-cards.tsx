@@ -10,7 +10,7 @@ interface SummaryCardsProps {
 
 interface CardDef {
   label: string;
-  subtitle: string;
+  subtitle: string | ((c: "USD" | "AUD") => string);
   value: (s: DashboardSummary, c: "USD" | "AUD") => string;
 }
 
@@ -18,17 +18,26 @@ const CARDS: CardDef[] = [
   {
     label: "Total ESS Income",
     subtitle: "Assessable ESS discount income",
-    value: (s, c) => formatCurrency(s.totalEssIncomeAud as number, c),
+    value: (s, c) => formatCurrency(
+      c === "USD" ? (s.totalEssIncomeUsd as number) : (s.totalEssIncomeAud as number),
+      c,
+    ),
   },
   {
     label: "Total Capital Gains",
-    subtitle: "Net capital gains after discount",
-    value: (s, c) => formatCurrency(s.netCapitalGainsAud as number, c),
+    subtitle: (c) => c === "USD" ? "Raw gain/loss (pre-discount, indicative)" : "Net capital gains after discount",
+    value: (s, c) => formatCurrency(
+      c === "USD" ? (s.netCapitalGainsUsd as number) : (s.netCapitalGainsAud as number),
+      c,
+    ),
   },
   {
     label: "Total Capital Losses",
-    subtitle: "Unapplied capital losses",
-    value: (s, c) => formatCurrency(s.totalCapitalLossesAud as number, c),
+    subtitle: (c) => c === "USD" ? "Raw losses (indicative)" : "Unapplied capital losses",
+    value: (s, c) => formatCurrency(
+      c === "USD" ? (s.totalCapitalLossesUsd as number) : (s.totalCapitalLossesAud as number),
+      c,
+    ),
   },
   {
     label: "Awards",
@@ -53,7 +62,9 @@ export function SummaryCards({ summary, displayCurrency }: SummaryCardsProps) {
       {CARDS.map((card) => (
         <Card key={card.label}>
           <CardHeader className="pb-2">
-            <CardDescription>{card.subtitle}</CardDescription>
+            <CardDescription>
+              {typeof card.subtitle === "function" ? card.subtitle(displayCurrency) : card.subtitle}
+            </CardDescription>
             <CardTitle className="text-lg">{card.label}</CardTitle>
           </CardHeader>
           <CardContent>

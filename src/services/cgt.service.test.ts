@@ -91,6 +91,8 @@ describe("CgtService — calculateByLot", () => {
 
     // Gain = 5997.81 - 4370.83 = 1626.98
     expect(result.capitalGainLossAud).toBeCloseTo(1626.98, 2);
+    // USD gain = 4438.38 - 3147.00 = 1291.38
+    expect(result.capitalGainLossUsd).toBeCloseTo(1291.38, 2);
 
     // Holding: ~897 days, long-term, discount eligible (positive gain)
     expect(result.holdingDays).toBe(daysBetween(d(2019, 2, 18), d(2021, 8, 3)));
@@ -128,6 +130,8 @@ describe("CgtService — calculateByLot", () => {
 
     // Loss = 5565.95 - 13879.32 = -8313.37
     expect(result.capitalGainLossAud).toBeCloseTo(-8313.37, 2);
+    // USD loss = 3617.87 - 10131.90 = -6514.03
+    expect(result.capitalGainLossUsd).toBeCloseTo(-6514.03, 2);
 
     // Long-term but a loss → not discount eligible
     expect(result.isLongTerm).toBe(true);
@@ -172,6 +176,8 @@ describe("CgtService — calculateByLot", () => {
     expect(result.netProceedsAud).toBeCloseTo(1935.48, 2);
     // Gain: 1935.48 - 1666.67 = 268.81
     expect(result.capitalGainLossAud).toBeCloseTo(268.81, 2);
+    // USD gain = 1200 - 1000 = 200
+    expect(result.capitalGainLossUsd).toBeCloseTo(200, 2);
   });
 
   it("Case 5: exactly 365 days — NOT discount eligible", () => {
@@ -540,6 +546,8 @@ describe("CgtService — calculateByLot", () => {
 
 function makeLotCgt(overrides: Partial<SaleLotCgt> & Pick<SaleLotCgt, "capitalGainLossAud" | "isLongTerm" | "financialYear">): SaleLotCgt {
   const gain = overrides.capitalGainLossAud;
+  const costBasisUsd = overrides.costBasisUsd ?? usd(1000);
+  const netProceedsUsd = overrides.netProceedsUsd ?? usd(1500);
   return {
     withdrawalRef: overrides.withdrawalRef ?? "WRC-AGG",
     originatingReleaseRef: overrides.originatingReleaseRef ?? "REL-AGG",
@@ -547,11 +555,11 @@ function makeLotCgt(overrides: Partial<SaleLotCgt> & Pick<SaleLotCgt, "capitalGa
     lotNumber: overrides.lotNumber ?? 1,
     saleDate: overrides.saleDate ?? d(2024, 1, 1),
     acquisitionDate: overrides.acquisitionDate ?? d(2023, 1, 1),
-    costBasisUsd: overrides.costBasisUsd ?? usd(1000),
+    costBasisUsd,
     grossProceedsUsd: overrides.grossProceedsUsd ?? usd(1500),
     brokerageUsd: overrides.brokerageUsd ?? usd(0),
     feesUsd: overrides.feesUsd ?? usd(0),
-    netProceedsUsd: overrides.netProceedsUsd ?? usd(1500),
+    netProceedsUsd,
     sharesSold: overrides.sharesSold ?? 10,
     acquisitionForexRate: overrides.acquisitionForexRate ?? 0.65,
     acquisitionForexDate: overrides.acquisitionForexDate ?? d(2023, 1, 1),
@@ -560,6 +568,7 @@ function makeLotCgt(overrides: Partial<SaleLotCgt> & Pick<SaleLotCgt, "capitalGa
     costBasisAud: overrides.costBasisAud ?? aud(1538.46),
     netProceedsAud: overrides.netProceedsAud ?? aud(2307.69),
     capitalGainLossAud: gain,
+    capitalGainLossUsd: overrides.capitalGainLossUsd ?? usd((netProceedsUsd as number) - (costBasisUsd as number)),
     holdingDays: overrides.holdingDays ?? 400,
     isLongTerm: overrides.isLongTerm,
     isDiscountEligible: overrides.isDiscountEligible ?? (overrides.isLongTerm && (gain as number) > 0),
@@ -587,6 +596,12 @@ describe("CgtService — aggregateByFy", () => {
     expect(result.discountedLongTerm).toBeCloseTo(1500, 2);
     expect(result.netCapitalGain).toBeCloseTo(1500, 2);
     expect(result.netCapitalLoss).toBeCloseTo(0, 2);
+    // USD: raw sums, no discount — 500 + 500 = 1000
+    expect(result.longTermGainsUsd).toBeCloseTo(1000, 2);
+    expect(result.shortTermGainsUsd).toBeCloseTo(0, 2);
+    expect(result.totalGainsUsd).toBeCloseTo(1000, 2);
+    expect(result.totalLossesUsd).toBeCloseTo(0, 2);
+    expect(result.totalGainLossUsd).toBeCloseTo(1000, 2);
   });
 
   it("Case 2: all short-term gains, no losses — no discount", () => {
@@ -607,9 +622,9 @@ describe("CgtService — aggregateByFy", () => {
   it("Case 3: losses offset short-term gains first (ATO ordering)", () => {
     // Short-term gains: 1000, Long-term gains: 2000, Losses: 800
     const lots = [
-      makeLotCgt({ capitalGainLossAud: aud(1000), isLongTerm: false, financialYear: "2023-24", lotNumber: 1 }),
-      makeLotCgt({ capitalGainLossAud: aud(2000), isLongTerm: true, financialYear: "2023-24", lotNumber: 2 }),
-      makeLotCgt({ capitalGainLossAud: aud(-800), isLongTerm: true, financialYear: "2023-24", lotNumber: 3 }),
+      makeLotCgt({ capitalGainLossAud: aud(1000), isLongTerm: false, financialYear: "2023-24", lotNumber: 1, capitalGainLossUsd: usd(700) }),
+      makeLotCgt({ capitalGainLossAud: aud(2000), isLongTerm: true, financialYear: "2023-24", lotNumber: 2, capitalGainLossUsd: usd(1400) }),
+      makeLotCgt({ capitalGainLossAud: aud(-800), isLongTerm: true, financialYear: "2023-24", lotNumber: 3, capitalGainLossUsd: usd(-500) }),
     ];
 
     const [result] = service.aggregateByFy(lots);
@@ -623,6 +638,12 @@ describe("CgtService — aggregateByFy", () => {
     // Net: 200 + 1000 = 1200
     expect(result.netCapitalGain).toBeCloseTo(1200, 2);
     expect(result.netCapitalLoss).toBeCloseTo(0, 2);
+    // USD: raw sums, no discount/offset
+    expect(result.shortTermGainsUsd).toBeCloseTo(700, 2);
+    expect(result.longTermGainsUsd).toBeCloseTo(1400, 2);
+    expect(result.totalGainsUsd).toBeCloseTo(2100, 2);
+    expect(result.totalLossesUsd).toBeCloseTo(500, 2);
+    expect(result.totalGainLossUsd).toBeCloseTo(1600, 2);
   });
 
   it("Case 4: losses exceed short-term, remainder applied to long-term", () => {
@@ -735,10 +756,10 @@ describe("CgtService — aggregateByFy", () => {
     // Step 3: discount: 3500 × 0.5 = 1750
     // Step 4: net = 0 + 1750 = 1750
     const lots = [
-      makeLotCgt({ capitalGainLossAud: aud(1500), isLongTerm: false, financialYear: "2023-24", lotNumber: 1 }),
-      makeLotCgt({ capitalGainLossAud: aud(4000), isLongTerm: true, financialYear: "2023-24", lotNumber: 2 }),
-      makeLotCgt({ capitalGainLossAud: aud(-1200), isLongTerm: true, financialYear: "2023-24", lotNumber: 3 }),
-      makeLotCgt({ capitalGainLossAud: aud(-800), isLongTerm: false, financialYear: "2023-24", lotNumber: 4 }),
+      makeLotCgt({ capitalGainLossAud: aud(1500), isLongTerm: false, financialYear: "2023-24", lotNumber: 1, capitalGainLossUsd: usd(1000) }),
+      makeLotCgt({ capitalGainLossAud: aud(4000), isLongTerm: true, financialYear: "2023-24", lotNumber: 2, capitalGainLossUsd: usd(2800) }),
+      makeLotCgt({ capitalGainLossAud: aud(-1200), isLongTerm: true, financialYear: "2023-24", lotNumber: 3, capitalGainLossUsd: usd(-900) }),
+      makeLotCgt({ capitalGainLossAud: aud(-800), isLongTerm: false, financialYear: "2023-24", lotNumber: 4, capitalGainLossUsd: usd(-600) }),
     ];
 
     const [result] = service.aggregateByFy(lots);
@@ -746,26 +767,35 @@ describe("CgtService — aggregateByFy", () => {
     expect(result.financialYear).toBe("2023-24");
     expect(result.lots).toHaveLength(4);
 
-    // Categorized gains
+    // Categorized gains (AUD)
     expect(result.shortTermGains).toBeCloseTo(1500, 2);
     expect(result.longTermGains).toBeCloseTo(4000, 2);
     expect(result.totalGains).toBeCloseTo(5500, 2);
 
-    // Losses
+    // Losses (AUD)
     expect(result.shortTermLosses).toBeCloseTo(800, 2);
     expect(result.longTermLosses).toBeCloseTo(1200, 2);
     expect(result.totalLosses).toBeCloseTo(2000, 2);
 
-    // After loss offsetting
+    // After loss offsetting (AUD)
     expect(result.shortTermAfterLosses).toBeCloseTo(0, 2);
     expect(result.longTermAfterLosses).toBeCloseTo(3500, 2);
 
-    // After discount
+    // After discount (AUD)
     expect(result.discountAmount).toBeCloseTo(1750, 2);
     expect(result.discountedLongTerm).toBeCloseTo(1750, 2);
 
-    // Final
+    // Final (AUD)
     expect(result.netCapitalGain).toBeCloseTo(1750, 2);
     expect(result.netCapitalLoss).toBeCloseTo(0, 2);
+
+    // USD: raw sums, no discount/offset
+    expect(result.shortTermGainsUsd).toBeCloseTo(1000, 2);
+    expect(result.longTermGainsUsd).toBeCloseTo(2800, 2);
+    expect(result.totalGainsUsd).toBeCloseTo(3800, 2);
+    expect(result.shortTermLossesUsd).toBeCloseTo(600, 2);
+    expect(result.longTermLossesUsd).toBeCloseTo(900, 2);
+    expect(result.totalLossesUsd).toBeCloseTo(1500, 2);
+    expect(result.totalGainLossUsd).toBeCloseTo(2300, 2);
   });
 });

@@ -1,8 +1,8 @@
-import type { Award, AUD, SaleLot } from "@/types";
-import { aud } from "@/types";
+import type { Award, AUD, USD, SaleLot } from "@/types";
+import { aud, usd } from "@/types";
 import type { ReleaseEssIncome } from "./ess-income.service";
 import type { FyCgtSummary } from "./cgt.service";
-import { sumAud } from "@/lib/money";
+import { sumAud, sumUsd } from "@/lib/money";
 import { toFyString } from "@/lib/dates";
 
 // ── Result types ────────────────────────────────────────────────────
@@ -11,6 +11,9 @@ export interface DashboardSummary {
   totalEssIncomeAud: AUD;
   netCapitalGainsAud: AUD;
   totalCapitalLossesAud: AUD;
+  totalEssIncomeUsd: USD;
+  netCapitalGainsUsd: USD;
+  totalCapitalLossesUsd: USD;
   awardsCount: number;
   totalSharesVested: number;
   totalSharesSold: number;
@@ -61,6 +64,9 @@ export function createDashboardService(): DashboardService {
       totalEssIncomeAud: sumAud(filteredReleases.map((r) => r.totalEssIncomeAud)),
       netCapitalGainsAud: sumAud(filteredCgt.map((c) => c.netCapitalGain)),
       totalCapitalLossesAud: sumAud(filteredCgt.map((c) => c.netCapitalLoss)),
+      totalEssIncomeUsd: sumUsd(filteredReleases.map((r) => r.totalEssIncomeUsd)),
+      netCapitalGainsUsd: sumUsd(filteredCgt.map((c) => c.totalGainLossUsd)),
+      totalCapitalLossesUsd: sumUsd(filteredCgt.map((c) => c.totalLossesUsd)),
       awardsCount: awards.length,
       totalSharesVested: filteredReleases.reduce((sum, r) => sum + r.sharesVested, 0),
       totalSharesSold: filteredLots.reduce((sum, l) => sum + l.sharesSold, 0),

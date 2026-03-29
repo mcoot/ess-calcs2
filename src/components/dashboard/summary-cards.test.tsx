@@ -2,12 +2,15 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { SummaryCards } from "./summary-cards";
 import type { DashboardSummary } from "@/services/dashboard.service";
-import { aud } from "@/types";
+import { aud, usd } from "@/types";
 
 const emptySummary: DashboardSummary = {
   totalEssIncomeAud: aud(0),
   netCapitalGainsAud: aud(0),
   totalCapitalLossesAud: aud(0),
+  totalEssIncomeUsd: usd(0),
+  netCapitalGainsUsd: usd(0),
+  totalCapitalLossesUsd: usd(0),
   awardsCount: 0,
   totalSharesVested: 0,
   totalSharesSold: 0,
@@ -18,6 +21,9 @@ const sampleSummary: DashboardSummary = {
   totalEssIncomeAud: aud(45000.5),
   netCapitalGainsAud: aud(12500.75),
   totalCapitalLossesAud: aud(3200),
+  totalEssIncomeUsd: usd(32000.25),
+  netCapitalGainsUsd: usd(9100.50),
+  totalCapitalLossesUsd: usd(2400),
   awardsCount: 3,
   totalSharesVested: 250,
   totalSharesSold: 180,
@@ -61,6 +67,14 @@ describe("SummaryCards", () => {
     expect(screen.getByText("3")).toBeDefined();
     expect(screen.getByText("250")).toBeDefined();
     expect(screen.getByText("180")).toBeDefined();
+  });
+
+  it("displays USD formatted currency values when USD selected", () => {
+    render(<SummaryCards summary={sampleSummary} displayCurrency="USD" />);
+
+    expect(screen.getByText("$32,000.25")).toBeDefined();
+    expect(screen.getByText("$9,100.50")).toBeDefined();
+    expect(screen.getByText("$2,400.00")).toBeDefined();
   });
 
   it("renders zero values for empty summary", () => {

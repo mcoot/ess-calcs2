@@ -10,7 +10,7 @@ import type { SaleLotCgt } from "@/services/cgt.service";
 import { toFyString } from "@/lib/dates";
 
 export default function SalesPage() {
-  const { store, cgt, refreshKey } = useAppContext();
+  const { store, cgt, displayCurrency, refreshKey } = useAppContext();
   const [lots, setLots] = useState<SaleLot[]>([]);
   const [cgtResults, setCgtResults] = useState<SaleLotCgt[]>([]);
 
@@ -46,7 +46,7 @@ export default function SalesPage() {
         selectedFy={selectedFy}
         onSelect={setSelectedFy}
       />
-      <SalesTable lots={filteredLots} cgtResults={filteredResults} />
+      <SalesTable lots={filteredLots} cgtResults={filteredResults} displayCurrency={displayCurrency} />
     </main>
   );
 }

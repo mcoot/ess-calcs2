@@ -12,9 +12,10 @@ import {
 interface ReleasesTableProps {
   incomes: ReleaseEssIncome[];
   releases: RsuRelease[];
+  displayCurrency: "USD" | "AUD";
 }
 
-export function ReleasesTable({ incomes, releases }: ReleasesTableProps) {
+export function ReleasesTable({ incomes, releases, displayCurrency }: ReleasesTableProps) {
   if (incomes.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -37,7 +38,7 @@ export function ReleasesTable({ incomes, releases }: ReleasesTableProps) {
           <TableHead>Name</TableHead>
           <TableHead className="text-right">Shares</TableHead>
           <TableHead className="text-right">FMV/Share</TableHead>
-          <TableHead className="text-right">ESS Income (AUD)</TableHead>
+          <TableHead className="text-right">{`ESS Income (${displayCurrency})`}</TableHead>
           <TableHead className="text-right">30-Day Lots</TableHead>
           <TableHead>FY</TableHead>
         </TableRow>
@@ -48,6 +49,7 @@ export function ReleasesTable({ incomes, releases }: ReleasesTableProps) {
             key={inc.releaseRef}
             income={inc}
             grantName={nameByRef.get(inc.releaseRef) ?? ""}
+            displayCurrency={displayCurrency}
           />
         ))}
       </TableBody>
@@ -58,9 +60,11 @@ export function ReleasesTable({ incomes, releases }: ReleasesTableProps) {
 function ReleaseRow({
   income,
   grantName,
+  displayCurrency,
 }: {
   income: ReleaseEssIncome;
   grantName: string;
+  displayCurrency: "USD" | "AUD";
 }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -86,7 +90,12 @@ function ReleaseRow({
           {formatCurrency(income.fmvPerShare as number, "USD")}
         </TableCell>
         <TableCell className="text-right">
-          {formatCurrency(income.totalEssIncomeAud as number, "AUD")}
+          {formatCurrency(
+            displayCurrency === "USD"
+              ? (income.totalEssIncomeUsd as number)
+              : (income.totalEssIncomeAud as number),
+            displayCurrency,
+          )}
         </TableCell>
         <TableCell className="text-right">
           {income.thirtyDayLots.length > 0

@@ -2,7 +2,7 @@ import type { RsuRelease, SaleLot, AUD, USD } from "@/types";
 import { usd, aud } from "@/types";
 import type { ForexService } from "./forex.service";
 import { toFyString } from "@/lib/dates";
-import { roundTo2dp, sumAud } from "@/lib/money";
+import { roundTo2dp, sumAud, sumUsd } from "@/lib/money";
 
 // ── Result types (per spec) ─────────────────────────────────────────
 
@@ -36,6 +36,7 @@ export interface ReleaseEssIncome {
 
   // Totals
   totalEssIncomeAud: AUD;
+  totalEssIncomeUsd: USD;
   financialYear: string;
 }
 
@@ -43,6 +44,7 @@ export interface FyEssIncome {
   financialYear: string;
   releases: ReleaseEssIncome[];
   totalEssIncomeAud: AUD;
+  totalEssIncomeUsd: USD;
 }
 
 // ── Service interface ───────────────────────────────────────────────
@@ -88,6 +90,7 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
       });
 
       const totalEssIncomeAud = sumAud([vestForex.aud, ...thirtyDayLots.map((l) => l.essIncomeAud)]);
+      const totalEssIncomeUsd = sumUsd([standardIncomeUsd, ...thirtyDayLots.map((l) => l.saleProceedsUsd)]);
 
       return {
         releaseRef: release.releaseReferenceNumber,
@@ -102,6 +105,7 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
         standardForexDate: vestForex.rateDate,
         thirtyDayLots,
         totalEssIncomeAud,
+        totalEssIncomeUsd,
         financialYear: toFyString(release.releaseDate),
       };
     });
@@ -111,11 +115,13 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
     // Build a map of FY → { releases, total AUD }
     // Standard income goes to the release's vest-date FY.
     // Each 30-day lot's income goes to the lot's sale-date FY.
-    const fyTotals = new Map<string, AUD>();
+    const fyTotalsAud = new Map<string, AUD>();
+    const fyTotalsUsd = new Map<string, USD>();
     const fyReleases = new Map<string, ReleaseEssIncome[]>();
 
-    function addToFy(fy: string, amount: AUD, release: ReleaseEssIncome) {
-      fyTotals.set(fy, aud((fyTotals.get(fy) ?? 0) + (amount as number)));
+    function addToFy(fy: string, amountAud: AUD, amountUsd: USD, release: ReleaseEssIncome) {
+      fyTotalsAud.set(fy, aud((fyTotalsAud.get(fy) ?? 0) + (amountAud as number)));
+      fyTotalsUsd.set(fy, usd((fyTotalsUsd.get(fy) ?? 0) + (amountUsd as number)));
       const existing = fyReleases.get(fy) ?? [];
       if (!existing.includes(release)) {
         existing.push(release);
@@ -125,18 +131,19 @@ export function createEssIncomeService(forex: ForexService): EssIncomeService {
 
     for (const ri of releaseIncomes) {
       // Standard portion → vest-date FY (adding 0 is a no-op on the total)
-      addToFy(ri.financialYear, ri.standardIncomeAud, ri);
+      addToFy(ri.financialYear, ri.standardIncomeAud, ri.standardIncomeUsd, ri);
 
       // 30-day lots → each lot's sale-date FY
       for (const lot of ri.thirtyDayLots) {
-        addToFy(lot.financialYear, lot.essIncomeAud, ri);
+        addToFy(lot.financialYear, lot.essIncomeAud, lot.saleProceedsUsd, ri);
       }
     }
 
-    return Array.from(fyTotals.entries()).map(([fy, total]) => ({
+    return Array.from(fyTotalsAud.entries()).map(([fy, totalAud]) => ({
       financialYear: fy,
       releases: fyReleases.get(fy) ?? [],
-      totalEssIncomeAud: aud(roundTo2dp(total as number)),
+      totalEssIncomeAud: aud(roundTo2dp(totalAud as number)),
+      totalEssIncomeUsd: usd(roundTo2dp((fyTotalsUsd.get(fy) ?? 0) as number)),
     }));
   }
 

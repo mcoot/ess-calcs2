@@ -71,9 +71,10 @@ function lotKey(lot: SaleLot): string {
 interface SalesTableProps {
   lots: SaleLot[];
   cgtResults: SaleLotCgt[];
+  displayCurrency: "USD" | "AUD";
 }
 
-export function SalesTable({ lots, cgtResults }: SalesTableProps) {
+export function SalesTable({ lots, cgtResults, displayCurrency }: SalesTableProps) {
   if (lots.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -99,7 +100,7 @@ export function SalesTable({ lots, cgtResults }: SalesTableProps) {
           <TableHead className="text-right">Shares</TableHead>
           <TableHead className="text-right">Cost Basis</TableHead>
           <TableHead className="text-right">Proceeds</TableHead>
-          <TableHead className="text-right">Gain/Loss (AUD)</TableHead>
+          <TableHead className="text-right">{`Gain/Loss (${displayCurrency})`}</TableHead>
           <TableHead>30-Day</TableHead>
           <TableHead>FY</TableHead>
         </TableRow>
@@ -111,7 +112,7 @@ export function SalesTable({ lots, cgtResults }: SalesTableProps) {
             {group.lots.map((lot) => {
               const key = lotKey(lot);
               const cgt = cgtByKey.get(key);
-              return <SaleRow key={key} lot={lot} cgt={cgt} />;
+              return <SaleRow key={key} lot={lot} cgt={cgt} displayCurrency={displayCurrency} />;
             })}
           </Fragment>
         ))}
@@ -150,7 +151,7 @@ function WithdrawalHeaderRow({ group }: { group: WithdrawalGroup }) {
 
 const MILLIS_PER_DAY = 86_400_000;
 
-function SaleRow({ lot, cgt }: { lot: SaleLot; cgt?: SaleLotCgt }) {
+function SaleRow({ lot, cgt, displayCurrency }: { lot: SaleLot; cgt?: SaleLotCgt; displayCurrency: "USD" | "AUD" }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -179,7 +180,12 @@ function SaleRow({ lot, cgt }: { lot: SaleLot; cgt?: SaleLotCgt }) {
         </TableCell>
         <TableCell className="text-right">
           {cgt
-            ? formatCurrency(cgt.capitalGainLossAud as number, "AUD")
+            ? formatCurrency(
+                displayCurrency === "USD"
+                  ? (cgt.capitalGainLossUsd as number)
+                  : (cgt.capitalGainLossAud as number),
+                displayCurrency,
+              )
             : "—"}
         </TableCell>
         <TableCell>

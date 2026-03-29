@@ -37,6 +37,7 @@ const income: ReleaseEssIncome = {
   standardForexDate: d(2020, 2, 18),
   thirtyDayLots: [],
   totalEssIncomeAud: aud(6155.20),
+  totalEssIncomeUsd: usd(4616.40),
   financialYear: "2019-20",
 };
 
@@ -61,12 +62,12 @@ const incomeWith30Day: ReleaseEssIncome = {
 
 describe("ReleasesTable", () => {
   it("shows empty state when no releases", () => {
-    render(<ReleasesTable incomes={[]} releases={[]} />);
+    render(<ReleasesTable incomes={[]} releases={[]} displayCurrency="AUD" />);
     expect(screen.getByText(/no releases/i)).toBeDefined();
   });
 
   it("renders a row with ESS income and grant name", () => {
-    render(<ReleasesTable incomes={[income]} releases={[release]} />);
+    render(<ReleasesTable incomes={[income]} releases={[release]} displayCurrency="AUD" />);
     expect(screen.getByText("9375")).toBeDefined();
     expect(screen.getByText("02.15.2018 RSU Grant (New Hire)")).toBeDefined();
     expect(screen.getByText("30")).toBeDefined();
@@ -78,14 +79,20 @@ describe("ReleasesTable", () => {
   });
 
   it("shows 30-day lots count when present", () => {
-    render(<ReleasesTable incomes={[incomeWith30Day]} releases={[release]} />);
+    render(<ReleasesTable incomes={[incomeWith30Day]} releases={[release]} displayCurrency="AUD" />);
     // The 30-day column should show "1"
     expect(screen.getByText("1")).toBeDefined();
   });
 
+  it("shows USD ESS income when displayCurrency is USD", () => {
+    render(<ReleasesTable incomes={[income]} releases={[release]} displayCurrency="USD" />);
+    expect(screen.getByText("$4,616.40")).toBeDefined();
+    expect(screen.getByText("ESS Income (USD)")).toBeDefined();
+  });
+
   it("clicking expand shows forex rate detail", async () => {
     const user = userEvent.setup();
-    render(<ReleasesTable incomes={[income]} releases={[release]} />);
+    render(<ReleasesTable incomes={[income]} releases={[release]} displayCurrency="AUD" />);
     await user.click(screen.getByRole("button", { name: /expand/i }));
     expect(screen.getByText(/0\.75/)).toBeDefined();
   });

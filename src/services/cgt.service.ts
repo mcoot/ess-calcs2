@@ -2,7 +2,7 @@ import type { SaleLot, AUD, USD } from "@/types";
 import { usd, aud } from "@/types";
 import type { ForexService } from "./forex.service";
 import { toFyString } from "@/lib/dates";
-import { roundTo2dp } from "@/lib/money";
+import { roundTo2dp, subtractUsd } from "@/lib/money";
 
 // ── Result types (per spec) ─────────────────────────────────────────
 
@@ -33,6 +33,9 @@ export interface SaleLotCgt {
   costBasisAud: AUD;
   netProceedsAud: AUD;
   capitalGainLossAud: AUD;
+
+  // USD gain/loss (raw, no ATO discount/offset)
+  capitalGainLossUsd: USD;
 
   // Discount eligibility
   holdingDays: number;
@@ -68,6 +71,15 @@ export interface FyCgtSummary {
   // Final
   netCapitalGain: AUD;
   netCapitalLoss: AUD;
+
+  // USD raw sums (no ATO discount/offset)
+  shortTermGainsUsd: USD;
+  longTermGainsUsd: USD;
+  shortTermLossesUsd: USD;
+  longTermLossesUsd: USD;
+  totalGainsUsd: USD;
+  totalLossesUsd: USD;
+  totalGainLossUsd: USD;
 }
 
 // ── Service interface ───────────────────────────────────────────────
@@ -106,6 +118,7 @@ export function createCgtService(forex: ForexService): CgtService {
         const capitalGainLossAud = aud(
           roundTo2dp((saleForex.aud as number) - (acqForex.aud as number))
         );
+        const capitalGainLossUsd = subtractUsd(netProceedsUsd, lot.costBasis);
 
         // Holding period and discount
         const holdingDays = Math.round(
@@ -134,6 +147,7 @@ export function createCgtService(forex: ForexService): CgtService {
           costBasisAud: acqForex.aud,
           netProceedsAud: saleForex.aud,
           capitalGainLossAud,
+          capitalGainLossUsd,
           holdingDays,
           isLongTerm,
           isDiscountEligible,
@@ -158,8 +172,15 @@ export function createCgtService(forex: ForexService): CgtService {
       let shortTermLosses = 0;
       let longTermLosses = 0;
 
+      // USD raw sums (no discount/offset)
+      let shortTermGainsUsdSum = 0;
+      let longTermGainsUsdSum = 0;
+      let shortTermLossesUsdSum = 0;
+      let longTermLossesUsdSum = 0;
+
       for (const lot of lots) {
         const gain = lot.capitalGainLossAud as number;
+        const gainUsd = lot.capitalGainLossUsd as number;
         if (gain >= 0) {
           if (lot.isLongTerm) {
             longTermGains += gain;
@@ -171,6 +192,19 @@ export function createCgtService(forex: ForexService): CgtService {
             longTermLosses += Math.abs(gain);
           } else {
             shortTermLosses += Math.abs(gain);
+          }
+        }
+        if (gainUsd >= 0) {
+          if (lot.isLongTerm) {
+            longTermGainsUsdSum += gainUsd;
+          } else {
+            shortTermGainsUsdSum += gainUsd;
+          }
+        } else {
+          if (lot.isLongTerm) {
+            longTermLossesUsdSum += Math.abs(gainUsd);
+          } else {
+            shortTermLossesUsdSum += Math.abs(gainUsd);
           }
         }
       }
@@ -211,6 +245,15 @@ export function createCgtService(forex: ForexService): CgtService {
         discountedLongTerm: aud(discountedLongTerm),
         netCapitalGain: aud(netCapitalGain),
         netCapitalLoss: aud(netCapitalLoss),
+        shortTermGainsUsd: usd(roundTo2dp(shortTermGainsUsdSum)),
+        longTermGainsUsd: usd(roundTo2dp(longTermGainsUsdSum)),
+        shortTermLossesUsd: usd(roundTo2dp(shortTermLossesUsdSum)),
+        longTermLossesUsd: usd(roundTo2dp(longTermLossesUsdSum)),
+        totalGainsUsd: usd(roundTo2dp(shortTermGainsUsdSum + longTermGainsUsdSum)),
+        totalLossesUsd: usd(roundTo2dp(shortTermLossesUsdSum + longTermLossesUsdSum)),
+        totalGainLossUsd: usd(roundTo2dp(
+          shortTermGainsUsdSum + longTermGainsUsdSum - shortTermLossesUsdSum - longTermLossesUsdSum
+        )),
       };
     });
   }

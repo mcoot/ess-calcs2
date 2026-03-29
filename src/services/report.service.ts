@@ -1,5 +1,5 @@
 import type { RsuRelease, SaleLot, AUD, USD } from "@/types";
-import { aud } from "@/types";
+import { aud, usd } from "@/types";
 import type { EssIncomeService, ReleaseEssIncome } from "./ess-income.service";
 import type { CgtService, FyCgtSummary, SaleLotCgt } from "./cgt.service";
 import { toFyString, daysBetween } from "@/lib/dates";
@@ -100,6 +100,13 @@ function emptyCgtSummary(fy: string): FyCgtSummary {
     discountedLongTerm: aud(0),
     netCapitalGain: aud(0),
     netCapitalLoss: aud(0),
+    shortTermGainsUsd: usd(0),
+    longTermGainsUsd: usd(0),
+    shortTermLossesUsd: usd(0),
+    longTermLossesUsd: usd(0),
+    totalGainsUsd: usd(0),
+    totalLossesUsd: usd(0),
+    totalGainLossUsd: usd(0),
   };
 }
 

@@ -12,9 +12,10 @@ import type { CumulativeEssPoint } from "@/lib/chart-data";
 
 interface CumulativeEssChartProps {
   data: CumulativeEssPoint[];
+  currency: "USD" | "AUD";
 }
 
-export function CumulativeEssChart({ data }: CumulativeEssChartProps) {
+export function CumulativeEssChart({ data, currency }: CumulativeEssChartProps) {
   if (data.length === 0) {
     return <p className="py-8 text-center text-muted-foreground" data-testid="cumulative-ess-empty">No cumulative income data available.</p>;
   }
@@ -30,8 +31,8 @@ export function CumulativeEssChart({ data }: CumulativeEssChartProps) {
             </linearGradient>
           </defs>
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(v: number) => `A$${(v / 1000).toFixed(0)}k`} />
-          <Tooltip formatter={(v: number) => `A$${v.toLocaleString()}`} />
+          <YAxis tickFormatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${(v / 1000).toFixed(0)}k`} />
+          <Tooltip formatter={(v: number) => `${currency === "AUD" ? "A$" : "$"}${v.toLocaleString()}`} />
           <Area type="monotone" dataKey="cumulative" stroke="#2563eb" fill="url(#essGradient)" />
         </AreaChart>
       </ResponsiveContainer>

@@ -48,6 +48,7 @@ const normalCgt: SaleLotCgt = {
   costBasisAud: aud(4697.01),
   netProceedsAud: aud(13213.00),
   capitalGainLossAud: aud(8515.99),
+  capitalGainLossUsd: usd(6630.62),
   holdingDays: 531,
   isLongTerm: true,
   isDiscountEligible: true,
@@ -67,12 +68,12 @@ const thirtyDayLot: SaleLot = {
 
 describe("SalesTable", () => {
   it("shows empty state when no sale lots", () => {
-    render(<SalesTable lots={[]} cgtResults={[]} />);
+    render(<SalesTable lots={[]} cgtResults={[]} displayCurrency="AUD" />);
     expect(screen.getByText(/no sales/i)).toBeDefined();
   });
 
   it("renders a non-30-day lot with CGT gain/loss", () => {
-    render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} />);
+    render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} displayCurrency="AUD" />);
     expect(screen.getByText("9375")).toBeDefined();
     expect(screen.getAllByText("30").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("A$8,515.99")).toBeDefined();
@@ -81,8 +82,14 @@ describe("SalesTable", () => {
     expect(rows).toHaveLength(3); // header + 1 group header + 1 data
   });
 
+  it("shows USD gain/loss when displayCurrency is USD", () => {
+    render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} displayCurrency="USD" />);
+    expect(screen.getByText("$6,630.62")).toBeDefined();
+    expect(screen.getByText("Gain/Loss (USD)")).toBeDefined();
+  });
+
   it("renders a 30-day lot with badge and no CGT", () => {
-    render(<SalesTable lots={[thirtyDayLot]} cgtResults={[]} />);
+    render(<SalesTable lots={[thirtyDayLot]} cgtResults={[]} displayCurrency="AUD" />);
     // Badge is rendered inside the data row, not the header
     const badges = screen.getAllByText("30-Day");
     expect(badges).toHaveLength(2); // header column + badge
@@ -92,7 +99,7 @@ describe("SalesTable", () => {
 
   it("clicking expand shows CGT detail with forex rates", async () => {
     const user = userEvent.setup();
-    render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} />);
+    render(<SalesTable lots={[normalLot]} cgtResults={[normalCgt]} displayCurrency="AUD" />);
     await user.click(screen.getByRole("button", { name: /expand/i }));
     // Should show both forex rates in the detail
     expect(screen.getByText(/0\.67/)).toBeDefined();
@@ -116,7 +123,7 @@ describe("SalesTable", () => {
       saleProceeds: usd(2000),
     };
 
-    render(<SalesTable lots={[lot1, lot2]} cgtResults={[]} />);
+    render(<SalesTable lots={[lot1, lot2]} cgtResults={[]} displayCurrency="AUD" />);
 
     // Two withdrawal group headers should be present
     expect(screen.getByText(/WRC-AAA/)).toBeDefined();
@@ -144,7 +151,7 @@ describe("SalesTable", () => {
       costBasis: usd(2000),
     };
 
-    render(<SalesTable lots={[lot1, lot2]} cgtResults={[]} />);
+    render(<SalesTable lots={[lot1, lot2]} cgtResults={[]} displayCurrency="AUD" />);
 
     // Group header should show summed shares (35) and proceeds ($5,000.00)
     expect(screen.getByText("35")).toBeDefined();
@@ -162,7 +169,7 @@ describe("SalesTable", () => {
       originalAcquisitionDate: d(2023, 2, 13),
     };
 
-    render(<SalesTable lots={[lot30]} cgtResults={[]} />);
+    render(<SalesTable lots={[lot30]} cgtResults={[]} displayCurrency="AUD" />);
 
     // Should have an expand button despite no CGT data
     const expandBtn = screen.getByRole("button", { name: /expand/i });
@@ -196,7 +203,7 @@ describe("SalesTable", () => {
       capitalGainLossAud: aud(5000),
     };
 
-    render(<SalesTable lots={[lotA, lotB]} cgtResults={[cgtA]} />);
+    render(<SalesTable lots={[lotA, lotB]} cgtResults={[cgtA]} displayCurrency="AUD" />);
 
     // Non-30-day lot shows its CGT value
     expect(screen.getByText("A$5,000.00")).toBeDefined();

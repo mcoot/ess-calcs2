@@ -10,7 +10,7 @@ import type { ReleaseEssIncome } from "@/services/ess-income.service";
 
 
 export default function ReleasesPage() {
-  const { store, essIncome, refreshKey } = useAppContext();
+  const { store, essIncome, displayCurrency, refreshKey } = useAppContext();
   const [releases, setReleases] = useState<RsuRelease[]>([]);
   const [incomes, setIncomes] = useState<ReleaseEssIncome[]>([]);
 
@@ -42,7 +42,7 @@ export default function ReleasesPage() {
         selectedFy={selectedFy}
         onSelect={setSelectedFy}
       />
-      <ReleasesTable incomes={filteredIncomes} releases={releases} />
+      <ReleasesTable incomes={filteredIncomes} releases={releases} displayCurrency={displayCurrency} />
     </main>
   );
 }

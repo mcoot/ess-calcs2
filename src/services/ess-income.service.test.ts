@@ -108,6 +108,8 @@ describe("EssIncomeService — standard case (no 30-day rule)", () => {
     expect(result.standardIncomeAud).toBeCloseTo(6890.15, 2);
     expect(result.thirtyDayLots).toEqual([]);
     expect(result.totalEssIncomeAud).toBe(result.standardIncomeAud);
+    // USD total equals standard USD when no 30-day lots
+    expect(result.totalEssIncomeUsd).toBe(result.standardIncomeUsd);
     expect(result.financialYear).toBe("2019-20");
   });
 
@@ -137,6 +139,8 @@ describe("EssIncomeService — standard case (no 30-day rule)", () => {
     expect(result.standardIncomeAud).toBeCloseTo(14458.78, 2);
     expect(result.thirtyDayLots).toEqual([]);
     expect(result.totalEssIncomeAud).toBe(result.standardIncomeAud);
+    // USD total equals standard USD when no 30-day lots
+    expect(result.totalEssIncomeUsd).toBe(result.standardIncomeUsd);
   });
 
   it("Case 3: multiple releases produce independent results with own forex rates", () => {
@@ -375,6 +379,8 @@ describe("EssIncomeService — 30-day rule", () => {
 
     // Total = 2400 + 1440 = 3840.00
     expect(result.totalEssIncomeAud).toBeCloseTo(3840.00, 2);
+    // USD total = standardIncomeUsd (1200) + saleProceedsUsd (900) = 2100
+    expect(result.totalEssIncomeUsd).toBeCloseTo(2100.00, 2);
   });
 
   it("Case 2: all shares sold within 30 days — zero standard shares", () => {
@@ -407,6 +413,8 @@ describe("EssIncomeService — 30-day rule", () => {
     expect(result.thirtyDayLots).toHaveLength(1);
     expect(result.thirtyDayLots[0].essIncomeAud).toBeCloseTo(3000.00, 2);
     expect(result.totalEssIncomeAud).toBeCloseTo(3000.00, 2);
+    // USD total = 0 (standard) + 2100 (30-day) = 2100
+    expect(result.totalEssIncomeUsd).toBeCloseTo(2100.00, 2);
   });
 
   it("Case 3: multiple 30-day lots from one release, each with own forex rate", () => {
@@ -472,6 +480,8 @@ describe("EssIncomeService — 30-day rule", () => {
 
     // Total: 2500 + 2000 + 2333.33 = 6833.33
     expect(result.totalEssIncomeAud).toBeCloseTo(6833.33, 2);
+    // USD total = 0 (standard) + 1600 + 1000 + 1400 = 4000
+    expect(result.totalEssIncomeUsd).toBeCloseTo(4000.00, 2);
   });
 
   it("Case 4: 30-day lot forex uses sale date, not vest date", () => {
@@ -603,6 +613,8 @@ describe("EssIncomeService — 30-day rule", () => {
 // ── aggregateByFy tests ─────────────────────────────────────────────
 
 function makeReleaseIncome(overrides: Partial<ReleaseEssIncome> & Pick<ReleaseEssIncome, "releaseRef" | "financialYear" | "standardIncomeAud" | "totalEssIncomeAud">): ReleaseEssIncome {
+  const standardIncomeUsd = overrides.standardIncomeUsd ?? usd(1000);
+  const thirtyDayLots = overrides.thirtyDayLots ?? [];
   return {
     releaseRef: overrides.releaseRef,
     grantNumber: overrides.grantNumber ?? 9375,
@@ -610,12 +622,15 @@ function makeReleaseIncome(overrides: Partial<ReleaseEssIncome> & Pick<ReleaseEs
     sharesVested: overrides.sharesVested ?? 10,
     fmvPerShare: overrides.fmvPerShare ?? usd(100),
     standardShares: overrides.standardShares ?? 10,
-    standardIncomeUsd: overrides.standardIncomeUsd ?? usd(1000),
+    standardIncomeUsd,
     standardIncomeAud: overrides.standardIncomeAud,
     standardForexRate: overrides.standardForexRate ?? 0.65,
     standardForexDate: overrides.standardForexDate ?? d(2024, 1, 1),
-    thirtyDayLots: overrides.thirtyDayLots ?? [],
+    thirtyDayLots,
     totalEssIncomeAud: overrides.totalEssIncomeAud,
+    totalEssIncomeUsd: overrides.totalEssIncomeUsd ?? usd(
+      (standardIncomeUsd as number) + thirtyDayLots.reduce((sum, l) => sum + (l.saleProceedsUsd as number), 0)
+    ),
     financialYear: overrides.financialYear,
   };
 }
@@ -654,6 +669,8 @@ describe("EssIncomeService — aggregateByFy", () => {
     expect(result[0].financialYear).toBe("2023-24");
     expect(result[0].releases).toHaveLength(3);
     expect(result[0].totalEssIncomeAud).toBeCloseTo(3500, 2);
+    // USD: 1000 + 1000 + 1000 = 3000 (default standardIncomeUsd)
+    expect(result[0].totalEssIncomeUsd).toBeCloseTo(3000, 2);
   });
 
   it("Case 2: multiple FYs — releases split into separate buckets", () => {
@@ -679,10 +696,12 @@ describe("EssIncomeService — aggregateByFy", () => {
     const fy2223 = result.find((r) => r.financialYear === "2022-23")!;
     expect(fy2223.releases).toHaveLength(1);
     expect(fy2223.totalEssIncomeAud).toBeCloseTo(800, 2);
+    expect(fy2223.totalEssIncomeUsd).toBeCloseTo(1000, 2);
 
     const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
     expect(fy2425.releases).toHaveLength(1);
     expect(fy2425.totalEssIncomeAud).toBeCloseTo(1200, 2);
+    expect(fy2425.totalEssIncomeUsd).toBeCloseTo(1000, 2);
   });
 
   it("Case 3: cross-FY 30-day lot — income attributed to correct FYs", () => {
@@ -717,10 +736,12 @@ describe("EssIncomeService — aggregateByFy", () => {
     // FY 2023-24 should only contain the standard portion
     const fy2324 = result.find((r) => r.financialYear === "2023-24")!;
     expect(fy2324.totalEssIncomeAud).toBeCloseTo(600, 2);
+    expect(fy2324.totalEssIncomeUsd).toBeCloseTo(1000, 2); // default standardIncomeUsd
 
     // FY 2024-25 should contain the 30-day lot income
     const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
     expect(fy2425.totalEssIncomeAud).toBeCloseTo(900, 2);
+    expect(fy2425.totalEssIncomeUsd).toBeCloseTo(900, 2); // saleProceedsUsd from 30-day lot
   });
 
   it("Case 4: empty input — returns empty array", () => {
@@ -772,9 +793,13 @@ describe("EssIncomeService — aggregateByFy", () => {
     // FY 2023-24: A's 1000 + B's standard 400 = 1400
     const fy2324 = result.find((r) => r.financialYear === "2023-24")!;
     expect(fy2324.totalEssIncomeAud).toBeCloseTo(1400, 2);
+    // USD: A's 1000 + B's 1000 (standardIncomeUsd) = 2000
+    expect(fy2324.totalEssIncomeUsd).toBeCloseTo(2000, 2);
 
     // FY 2024-25: C's 2000 + B's 30-day lot 500 = 2500
     const fy2425 = result.find((r) => r.financialYear === "2024-25")!;
     expect(fy2425.totalEssIncomeAud).toBeCloseTo(2500, 2);
+    // USD: C's 1000 (standardIncomeUsd) + B's 30-day 500 = 1500
+    expect(fy2425.totalEssIncomeUsd).toBeCloseTo(1500, 2);
   });
 });

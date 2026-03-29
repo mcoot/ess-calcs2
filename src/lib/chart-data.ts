@@ -1,7 +1,7 @@
 import type { ReleaseEssIncome, FyEssIncome } from "@/services/ess-income.service";
 import type { FyCgtSummary } from "@/services/cgt.service";
 import { toDateKey } from "./dates";
-import { sumAud } from "./money";
+import { sumAud, sumUsd } from "./money";
 
 // ── Chart data shapes ───────────────────────────────────────────────
 
@@ -70,8 +70,20 @@ export function toSharePriceLine(
 
 export function toEssIncomeByFyBars(
   fyEssIncomes: FyEssIncome[],
+  currency: "USD" | "AUD",
 ): EssIncomeFyBar[] {
   return fyEssIncomes.map((fy) => {
+    if (currency === "USD") {
+      const standard = sumUsd(fy.releases.map((r) => r.standardIncomeUsd));
+      const thirtyDay = sumUsd(
+        fy.releases.flatMap((r) => r.thirtyDayLots.map((l) => l.saleProceedsUsd)),
+      );
+      return {
+        fy: fy.financialYear,
+        standard: standard as number,
+        thirtyDay: thirtyDay as number,
+      };
+    }
     const standard = sumAud(fy.releases.map((r) => r.standardIncomeAud));
     const thirtyDay = sumAud(
       fy.releases.flatMap((r) => r.thirtyDayLots.map((l) => l.essIncomeAud)),
@@ -86,23 +98,38 @@ export function toEssIncomeByFyBars(
 
 export function toCgtByFyBars(
   fyCgtSummaries: FyCgtSummary[],
+  currency: "USD" | "AUD",
 ): CgtFyBar[] {
-  return fyCgtSummaries.map((s) => ({
-    fy: s.financialYear,
-    shortTermGains: s.shortTermGains as number,
-    longTermGains: s.longTermGains as number,
-    losses: -(s.totalLosses as number),
-    netGain: s.netCapitalGain as number,
-  }));
+  return fyCgtSummaries.map((s) => {
+    if (currency === "USD") {
+      return {
+        fy: s.financialYear,
+        shortTermGains: s.shortTermGainsUsd as number,
+        longTermGains: s.longTermGainsUsd as number,
+        losses: -(s.totalLossesUsd as number),
+        netGain: s.totalGainLossUsd as number,
+      };
+    }
+    return {
+      fy: s.financialYear,
+      shortTermGains: s.shortTermGains as number,
+      longTermGains: s.longTermGains as number,
+      losses: -(s.totalLosses as number),
+      netGain: s.netCapitalGain as number,
+    };
+  });
 }
 
 export function toCumulativeEssIncome(
   releaseIncomes: ReleaseEssIncome[],
+  currency: "USD" | "AUD",
 ): CumulativeEssPoint[] {
   const sorted = sortedByDate(releaseIncomes);
   let cumulative = 0;
   return sorted.map((r) => {
-    cumulative += r.totalEssIncomeAud as number;
+    cumulative += currency === "USD"
+      ? (r.totalEssIncomeUsd as number)
+      : (r.totalEssIncomeAud as number);
     return { date: toDateKey(r.releaseDate), cumulative };
   });
 }

@@ -50,7 +50,7 @@ describe("SharePriceChart", () => {
 
 describe("EssIncomeFyChart", () => {
   it("shows empty state when no data", () => {
-    render(<EssIncomeFyChart data={[]} />);
+    render(<EssIncomeFyChart data={[]} currency="AUD" />);
     expect(screen.getByTestId("ess-income-fy-empty")).toBeDefined();
   });
 
@@ -58,6 +58,7 @@ describe("EssIncomeFyChart", () => {
     render(
       <EssIncomeFyChart
         data={[{ fy: "2022-23", standard: 5000, thirtyDay: 1000 }]}
+        currency="AUD"
       />,
     );
     expect(screen.getByTestId("ess-income-fy-chart")).toBeDefined();
@@ -66,7 +67,7 @@ describe("EssIncomeFyChart", () => {
 
 describe("CgtFyChart", () => {
   it("shows empty state when no data", () => {
-    render(<CgtFyChart data={[]} />);
+    render(<CgtFyChart data={[]} currency="AUD" />);
     expect(screen.getByTestId("cgt-fy-empty")).toBeDefined();
   });
 
@@ -82,6 +83,7 @@ describe("CgtFyChart", () => {
             netGain: 4700,
           },
         ]}
+        currency="AUD"
       />,
     );
     expect(screen.getByTestId("cgt-fy-chart")).toBeDefined();
@@ -90,13 +92,13 @@ describe("CgtFyChart", () => {
 
 describe("CumulativeEssChart", () => {
   it("shows empty state when no data", () => {
-    render(<CumulativeEssChart data={[]} />);
+    render(<CumulativeEssChart data={[]} currency="AUD" />);
     expect(screen.getByTestId("cumulative-ess-empty")).toBeDefined();
   });
 
   it("renders chart container with data", () => {
     render(
-      <CumulativeEssChart data={[{ date: "2023-01-01", cumulative: 5000 }]} />,
+      <CumulativeEssChart data={[{ date: "2023-01-01", cumulative: 5000 }]} currency="AUD" />,
     );
     expect(screen.getByTestId("cumulative-ess-chart")).toBeDefined();
   });

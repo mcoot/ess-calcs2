@@ -26,6 +26,7 @@ function makeReleaseIncome(
     standardForexDate: overrides.standardForexDate ?? overrides.releaseDate,
     thirtyDayLots: overrides.thirtyDayLots ?? [],
     totalEssIncomeAud: overrides.totalEssIncomeAud,
+    totalEssIncomeUsd: overrides.totalEssIncomeUsd ?? usd(0),
     financialYear: overrides.financialYear,
   };
 }
@@ -49,6 +50,13 @@ function makeFyCgtSummary(
     discountedLongTerm: overrides.discountedLongTerm ?? aud(0),
     netCapitalGain: overrides.netCapitalGain,
     netCapitalLoss: overrides.netCapitalLoss,
+    shortTermGainsUsd: overrides.shortTermGainsUsd ?? usd(0),
+    longTermGainsUsd: overrides.longTermGainsUsd ?? usd(0),
+    shortTermLossesUsd: overrides.shortTermLossesUsd ?? usd(0),
+    longTermLossesUsd: overrides.longTermLossesUsd ?? usd(0),
+    totalGainsUsd: overrides.totalGainsUsd ?? usd(0),
+    totalLossesUsd: overrides.totalLossesUsd ?? usd(0),
+    totalGainLossUsd: overrides.totalGainLossUsd ?? usd(0),
   };
 }
 
@@ -100,6 +108,9 @@ describe("DashboardService", () => {
         totalEssIncomeAud: aud(0),
         netCapitalGainsAud: aud(0),
         totalCapitalLossesAud: aud(0),
+        totalEssIncomeUsd: usd(0),
+        netCapitalGainsUsd: usd(0),
+        totalCapitalLossesUsd: usd(0),
         awardsCount: 0,
         totalSharesVested: 0,
         totalSharesSold: 0,
@@ -114,12 +125,14 @@ describe("DashboardService", () => {
           releaseDate: d(2022, 8, 15),
           sharesVested: 30,
           totalEssIncomeAud: aud(5000),
+          totalEssIncomeUsd: usd(3500),
           financialYear: "2022-23",
         }),
         makeReleaseIncome({
           releaseDate: d(2023, 2, 15),
           sharesVested: 20,
           totalEssIncomeAud: aud(3000),
+          totalEssIncomeUsd: usd(2100),
           financialYear: "2022-23",
         }),
       ];
@@ -128,6 +141,8 @@ describe("DashboardService", () => {
           financialYear: "2022-23",
           netCapitalGain: aud(2000),
           netCapitalLoss: aud(500),
+          totalGainLossUsd: usd(1800),
+          totalLossesUsd: usd(400),
         }),
       ];
       const saleLots = [
@@ -140,6 +155,9 @@ describe("DashboardService", () => {
       expect(result.totalEssIncomeAud).toBe(aud(8000));
       expect(result.netCapitalGainsAud).toBe(aud(2000));
       expect(result.totalCapitalLossesAud).toBe(aud(500));
+      expect(result.totalEssIncomeUsd).toBe(usd(5600));
+      expect(result.netCapitalGainsUsd).toBe(usd(1800));
+      expect(result.totalCapitalLossesUsd).toBe(usd(400));
       expect(result.awardsCount).toBe(1);
       expect(result.totalSharesVested).toBe(50);
       expect(result.totalSharesSold).toBe(25);

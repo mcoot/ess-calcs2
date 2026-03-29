@@ -114,18 +114,18 @@ export default function DashboardPage() {
 
         <section>
           <h2 className="mb-2 text-lg font-semibold">ESS Income by Financial Year</h2>
-          <EssIncomeFyChart data={toEssIncomeByFyBars(filteredFyEss)} />
+          <EssIncomeFyChart data={toEssIncomeByFyBars(filteredFyEss, displayCurrency)} currency={displayCurrency} />
         </section>
 
         <section>
           <h2 className="mb-2 text-lg font-semibold">Capital Gains/Losses by Financial Year</h2>
-          <CgtFyChart data={toCgtByFyBars(filteredFyCgt)} />
+          <CgtFyChart data={toCgtByFyBars(filteredFyCgt, displayCurrency)} currency={displayCurrency} />
         </section>
       </div>
 
       <section>
         <h2 className="mb-2 text-lg font-semibold">Cumulative ESS Income</h2>
-        <CumulativeEssChart data={toCumulativeEssIncome(filteredReleases)} />
+        <CumulativeEssChart data={toCumulativeEssIncome(filteredReleases, displayCurrency)} currency={displayCurrency} />
       </section>
     </main>
   );

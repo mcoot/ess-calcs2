@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAppContext } from '@/components/providers/app-provider'
+import { Button } from '@/components/ui/button'
 
 interface DataCounts {
   awards: number
@@ -11,8 +12,9 @@ interface DataCounts {
 }
 
 export function DataSummary() {
-  const { store, refreshKey } = useAppContext()
+  const { store, refreshKey, refreshData } = useAppContext()
   const [counts, setCounts] = useState<DataCounts | null>(null)
+  const [confirmState, setConfirmState] = useState<'idle' | 'confirming'>('idle')
 
   useEffect(() => {
     async function load() {
@@ -31,6 +33,29 @@ export function DataSummary() {
     }
     load()
   }, [store, refreshKey])
+
+  useEffect(() => {
+    if (confirmState !== 'confirming') {
+      return
+    }
+    const timer = setTimeout(() => setConfirmState('idle'), 3000)
+    return () => clearTimeout(timer)
+  }, [confirmState])
+
+  async function handleClear() {
+    if (confirmState === 'idle') {
+      setConfirmState('confirming')
+      return
+    }
+    await Promise.all([
+      store.clearAwards(),
+      store.clearVestingSchedule(),
+      store.clearRsuReleases(),
+      store.clearSaleLots(),
+    ])
+    setConfirmState('idle')
+    refreshData()
+  }
 
   if (!counts) {
     return null
@@ -58,6 +83,13 @@ export function DataSummary() {
           </li>
         ))}
       </ul>
+      <Button
+        variant={confirmState === 'confirming' ? 'destructive' : 'outline'}
+        size="sm"
+        onClick={handleClear}
+      >
+        {confirmState === 'confirming' ? 'Confirm Clear?' : 'Clear Data'}
+      </Button>
     </div>
   )
 }
